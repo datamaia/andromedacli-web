@@ -1,402 +1,472 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Andromeda — the terminal AI coding agent</title>
-  <meta name="description" content="Andromeda is an open-source, local-first, vendor-agnostic AI coding agent for your terminal. Bring your own model; your credentials never leave your machine." />
-  <meta property="og:title" content="Andromeda — the terminal AI coding agent" />
-  <meta property="og:description" content="Open-source, local-first, vendor-agnostic AI coding agent for your terminal." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://andromedacli.com" />
-  <meta name="theme-color" content="#7C5CFF" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E" />
-  <style>
-    :root {
-      --brand: #7C5CFF;
-      --brand-2: #9B84FF;
-      --brand-3: #C6B8FF;
-      --taupe: #8C7B6E;
-      --bg: #F5F2ED;
-      --fg: #1c1a22;
-      --muted: #6b6560;
-      --card: #ffffff;
-      --border: #e7ded2;
-      --code-bg: #17151d;
-      --code-fg: #e8e4f0;
-      --shadow: 0 12px 40px rgba(28, 26, 34, .10);
-      --cosmic-1: #0a0812;
-      --cosmic-2: #141026;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b0a11;
-        --fg: #F5F2ED;
-        --muted: #9a938c;
-        --card: #15131d;
-        --border: #262231;
-        --shadow: 0 12px 40px rgba(0, 0, 0, .5);
-      }
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-    a { color: var(--brand); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .wrap { width: 100%; max-width: 980px; margin: 0 auto; padding: 0 24px; }
-    code, pre, .mono { font-family: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-
-    /* nav */
-    header.nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px);
-      background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom: 1px solid var(--border); }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .1em; font-size: 15px; }
-    .brand .cat-mini { width: 22px; height: 22px; }
-    .nav-links { display: flex; gap: 22px; align-items: center; font-size: 14px; }
-    .nav-links a { color: var(--muted); }
-    .nav-links a:hover { color: var(--fg); text-decoration: none; }
-
-    /* cosmic hero */
-    .hero { position: relative; text-align: center; padding: 92px 0 84px; overflow: hidden;
-      background:
-        radial-gradient(1200px 620px at 50% -12%, rgba(124,92,255,.28), transparent 60%),
-        radial-gradient(800px 500px at 82% 8%, rgba(155,132,255,.16), transparent 55%),
-        linear-gradient(180deg, var(--cosmic-1), var(--cosmic-2) 70%, var(--cosmic-1)); }
-    #stars { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
-    .hero .wrap { position: relative; z-index: 2; }
-    .hero, .hero a { color: #F5F2ED; }
-
-    .wordmark { font-weight: 800; letter-spacing: .24em; font-size: clamp(34px, 8.4vw, 74px); margin: 0;
-      background: linear-gradient(135deg, #E7DEFF, var(--brand-2) 45%, var(--brand) 80%);
-      -webkit-background-clip: text; background-clip: text; color: transparent;
-      filter: drop-shadow(0 4px 30px rgba(124,92,255,.55)); }
-    .tagline { font-size: clamp(18px, 3.4vw, 26px); font-weight: 600; margin: 16px 0 6px; color: #fff; }
-    .subtag { color: #cfc7e6; font-size: 17px; max-width: 570px; margin: 0 auto 30px; }
-    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
-    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 10px;
-      font-weight: 600; font-size: 15px; border: 1px solid transparent; cursor: pointer; transition: transform .12s ease, background .2s ease, border-color .2s ease; }
-    .btn:hover { transform: translateY(-2px); text-decoration: none; }
-    .btn-primary { background: var(--brand); color: #fff; box-shadow: 0 8px 24px rgba(124,92,255,.4); }
-    .btn-primary:hover { background: #6a49f0; }
-    .btn-ghost { background: rgba(255,255,255,.06); color: #fff; border-color: rgba(255,255,255,.22); }
-    .btn-ghost:hover { border-color: var(--brand-2); }
-
-    .oneliner { display: flex; align-items: center; gap: 12px; justify-content: space-between;
-      background: rgba(10,8,18,.72); border: 1px solid rgba(255,255,255,.12); color: var(--code-fg);
-      border-radius: 12px; padding: 13px 15px; max-width: 540px; margin: 0 auto 30px; text-align: left;
-      backdrop-filter: blur(4px); }
-    .oneliner code { font-size: 14px; white-space: nowrap; overflow-x: auto; }
-    .oneliner .prompt { color: var(--brand-2); user-select: none; }
-    .copy { background: rgba(255,255,255,.1); color: var(--code-fg); border: 1px solid rgba(255,255,255,.16);
-      border-radius: 7px; padding: 6px 11px; font-size: 12px; cursor: pointer; flex-shrink: 0; transition: background .2s; }
-    .copy:hover { background: rgba(124,92,255,.4); }
-
-    /* the cat, sitting among the stars */
-    .cat-stage { position: relative; z-index: 2; margin-top: 30px; height: 132px; display: flex; align-items: flex-end; justify-content: center; }
-    .cat { width: 128px; height: 132px; }
-    .cat-float { animation: catFloat 6s ease-in-out infinite; transform-origin: 50% 100%; }
-    .cat-body { fill: url(#catGrad); }
-    .cat-ear-inner { fill: #6a49f0; opacity: .7; }
-    .cat-eye { fill: #FFE9A8; animation: blink 5.2s infinite; transform-origin: center; }
-    .cat-eye.r { animation-delay: .04s; }
-    .cat-nose { fill: #ffb3c7; }
-    .cat-whisker { stroke: rgba(255,255,255,.5); stroke-width: 1.4; stroke-linecap: round; }
-    .cat-tail { fill: url(#catGrad); animation: tail 4.5s ease-in-out infinite; transform-origin: 92px 116px; }
-    .cat-shadow { fill: rgba(124,92,255,.28); animation: catShadow 6s ease-in-out infinite; }
-
-    @keyframes catFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-    @keyframes catShadow { 0%,100% { transform: scaleX(1); opacity:.28 } 50% { transform: scaleX(.86); opacity:.18 } }
-    @keyframes blink { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
-    @keyframes tail { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-13deg); } }
-
-    /* sections */
-    section { padding: 60px 0; }
-    section h2 { font-size: 28px; text-align: center; margin: 0 0 8px; }
-    section .lead { text-align: center; color: var(--muted); margin: 0 auto 34px; max-width: 560px; }
-
-    .install-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .icard { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 18px 16px;
-      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
-    .icard:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--brand) 45%, var(--border)); box-shadow: var(--shadow); }
-    .icard h3 { margin: 0 0 4px; font-size: 15px; }
-    .icard .rec { color: var(--brand); font-weight: 700; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
-    .icard p { margin: 2px 0 12px; color: var(--muted); font-size: 13px; }
-    .icard pre { background: var(--code-bg); color: var(--code-fg); border-radius: 8px; padding: 11px 12px;
-      font-size: 12.5px; overflow-x: auto; margin: 0; }
-
-    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    .fcard { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px;
-      transition: transform .18s ease, border-color .18s ease; }
-    .fcard:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--brand) 40%, var(--border)); }
-    .fcard .ico { font-size: 22px; }
-    .fcard h3 { margin: 10px 0 6px; font-size: 16px; }
-    .fcard p { margin: 0; color: var(--muted); font-size: 14px; }
-
-    /* scroll reveal */
-    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
-    .reveal.in { opacity: 1; transform: none; }
-
-    footer { border-top: 1px solid var(--border); padding: 32px 0; color: var(--muted); font-size: 14px; }
-    .foot-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .foot-links { display: flex; gap: 20px; }
-    .foot-links a { color: var(--muted); }
-
-    @media (max-width: 680px) {
-      .install-grid, .feat-grid { grid-template-columns: 1fr; }
-      .nav-links a:not(.gh) { display: none; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .cat-float, .cat-eye, .cat-tail, .cat-shadow { animation: none !important; }
-      html { scroll-behavior: auto; }
-      .reveal { opacity: 1; transform: none; transition: none; }
-      .btn:hover, .icard:hover, .fcard:hover { transform: none; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Andromeda — the terminal AI coding agent</title>
+<meta name="description" content="Andromeda is an open-source, local-first, vendor-agnostic AI coding agent for your terminal. Bring your own model; your credentials never leave your machine.">
+<meta name="theme-color" content="#7C5CFF">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://andromedacli.com">
+<meta property="og:title" content="Andromeda — the terminal AI coding agent">
+<meta property="og:description" content="Open-source, local-first, vendor-agnostic AI coding agent for your terminal.">
+<meta property="og:image" content="https://andromedacli.com/assets/andromeda-cat.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="/assets/andromeda-cat.png">
+<script src="./support.js"></script>
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap nav-inner">
-      <div class="brand">
-        <svg class="cat-mini" viewBox="0 0 120 132" aria-hidden="true"><use href="#catglyph"/></svg>
-        ANDROMEDA
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #0e1013; }
+    body { font-family: 'Geist', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #b7a7ff; text-decoration: none; }
+    a:hover { color: #d3c9ff; }
+    ::selection { background: rgba(124,92,255,0.35); color: #F5F2ED; }
+    @keyframes amBlink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+    @keyframes amFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes amPop { 0% { opacity: 0; transform: translateY(12px) scale(0.9); } 60% { transform: translateY(-2px) scale(1.03); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+  </style>
+</helmet>
+<div style="background: radial-gradient(1200px 600px at 78% -8%, rgba(124,92,255,0.16), transparent 60%), #0e1013; color: #F5F2ED; min-height: 100vh; overflow-x: hidden;">
+
+  <canvas ref="{{ skyRef }}" style="position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;"></canvas>
+  <div style="position: relative; z-index: 1;">
+
+  <!-- NAV -->
+  <nav style="position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 32px; border-bottom: 1px solid rgba(245,242,237,0.08); background: rgba(14,16,19,0.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+    <div style="display: flex; align-items: center; gap: 11px;">
+      <div style="width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, #7C5CFF, #9d84ff); box-shadow: 0 0 18px rgba(124,92,255,0.5); display: flex; align-items: center; justify-content: center;">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: #0e1013;"></div>
       </div>
-      <nav class="nav-links">
-        <a href="#install">Install</a>
-        <a href="#features">Features</a>
-        <a class="gh" href="https://github.com/datamaia/andromeda">GitHub ↗</a>
-      </nav>
+      <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600; letter-spacing: 0.22em; font-size: 14px;">ANDROMEDA</span>
     </div>
-  </header>
+    <div style="display: flex; align-items: center; gap: 28px; font-size: 14px; color: rgba(245,242,237,0.72);">
+      <a href="#install" style="color: rgba(245,242,237,0.72);" style-hover="color: #F5F2ED;">Install</a>
+      <a href="#features" style="color: rgba(245,242,237,0.72);" style-hover="color: #F5F2ED;">Features</a>
+      <a href="#models" style="color: rgba(245,242,237,0.72);" style-hover="color: #F5F2ED;">Models</a>
+      <a href="https://github.com/datamaia/andromeda" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 15px; border: 1px solid rgba(245,242,237,0.16); border-radius: 9px; color: #F5F2ED; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;" style-hover="border-color: rgba(124,92,255,0.6); background: rgba(124,92,255,0.08);">★ <span style="color: rgba(245,242,237,0.6);">{{ stars }}</span></a>
+    </div>
+  </nav>
 
-  <main>
-    <section class="hero">
-      <canvas id="stars" aria-hidden="true"></canvas>
-      <div class="wrap">
-        <h1 class="wordmark">ANDROMEDA</h1>
-        <p class="tagline">The terminal AI coding agent.</p>
-        <p class="subtag">Open-source, local-first, and vendor-agnostic. Bring your own model — your credentials stay in your OS keychain and never leave your machine.</p>
+  <!-- HERO -->
+  <section style="max-width: 1180px; margin: 0 auto; padding: 72px 32px 40px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center;">
+    <div data-reveal style="flex: 1 1 400px; min-width: 320px;">
+      <div style="display: inline-flex; align-items: center; gap: 9px; padding: 6px 13px; border: 1px solid rgba(245,242,237,0.14); border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(245,242,237,0.7); margin-bottom: 26px;">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: #6fc48a; box-shadow: 0 0 8px #6fc48a;"></span>
+        Open-source · Apache 2.0
+      </div>
+      <h1 style="font-size: 62px; line-height: 1.02; letter-spacing: -0.03em; font-weight: 600; margin: 0 0 22px; text-wrap: balance;">The terminal AI coding agent that respects your machine.</h1>
+      <p style="font-size: 19px; line-height: 1.55; color: rgba(245,242,237,0.66); margin: 0 0 34px; max-width: 520px;">Local-first, vendor-agnostic, and safe by default. Bring your own model — credentials stay in your OS keychain and never leave your machine.</p>
 
-        <div class="oneliner">
-          <code><span class="prompt">$ </span><span id="ol">brew install datamaia/tap/andromeda</span></code>
-          <button class="copy" onclick="copyOL(this)">Copy</button>
+      <div style="display: flex; align-items: stretch; max-width: 480px; border: 1px solid rgba(245,242,237,0.14); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.35); margin-bottom: 22px;">
+        <div style="flex: 1; display: flex; align-items: center; gap: 11px; padding: 0 16px; font-family: 'JetBrains Mono', monospace; font-size: 14px; overflow: hidden;">
+          <span style="color: #7C5CFF;">$</span>
+          <span style="white-space: nowrap; color: #F5F2ED;">brew install datamaia/tap/andromeda</span>
         </div>
+        <button data-copy="brew install datamaia/tap/andromeda" data-idle="Copy" onClick="{{ onCopy }}" style="border: none; border-left: 1px solid rgba(245,242,237,0.14); background: rgba(124,92,255,0.14); color: #b7a7ff; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; padding: 0 18px; cursor: pointer;" style-hover="background: rgba(124,92,255,0.24); color: #d3c9ff;">Copy</button>
+      </div>
 
-        <div class="cta">
-          <a class="btn btn-primary" href="#install">Get started</a>
-          <a class="btn btn-ghost" href="https://github.com/datamaia/andromeda">★ Star on GitHub</a>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <a href="#install" style="display: inline-flex; align-items: center; gap: 9px; padding: 13px 22px; border-radius: 11px; background: #7C5CFF; color: #0e1013; font-weight: 600; font-size: 15px; box-shadow: 0 8px 30px rgba(124,92,255,0.35);" style-hover="background: #8d70ff;">Get started →</a>
+        <a href="https://github.com/datamaia/andromeda" style="display: inline-flex; align-items: center; gap: 9px; padding: 13px 22px; border-radius: 11px; border: 1px solid rgba(245,242,237,0.18); color: #F5F2ED; font-weight: 500; font-size: 15px;" style-hover="border-color: rgba(245,242,237,0.4); background: rgba(245,242,237,0.04);">★ Star on GitHub</a>
+      </div>
+    </div>
+
+    <!-- TERMINAL DEMO -->
+    <div data-reveal style="flex: 1 1 440px; min-width: 360px;">
+      <div style="border-radius: 15px; overflow: hidden; border: 1px solid rgba(245,242,237,0.12); background: #0a0b0d; box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,92,255,0.06); animation: amFloat 7s ease-in-out infinite;">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 13px 16px; border-bottom: 1px solid rgba(245,242,237,0.08); background: rgba(255,255,255,0.02);">
+          <span style="width: 11px; height: 11px; border-radius: 50%; background: #ff5f57;"></span>
+          <span style="width: 11px; height: 11px; border-radius: 50%; background: #febc2e;"></span>
+          <span style="width: 11px; height: 11px; border-radius: 50%; background: #28c840;"></span>
+          <span style="margin-left: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: rgba(245,242,237,0.42);">andromeda — ~/projects/aurora</span>
         </div>
-
-        <div class="cat-stage">
-          <svg class="cat cat-float" viewBox="0 0 120 132" role="img" aria-label="The Andromeda cat, sitting among the stars">
-            <defs>
-              <linearGradient id="catGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#C6B8FF"/>
-                <stop offset="1" stop-color="#7C5CFF"/>
-              </linearGradient>
-            </defs>
-            <ellipse class="cat-shadow" cx="60" cy="127" rx="34" ry="6"/>
-            <!-- tail -->
-            <path class="cat-tail" d="M86 118 q28 2 26 -26 q-1 -14 -12 -14 q10 4 8 16 q-2 18 -22 16 z"/>
-            <g id="catglyph">
-              <!-- body -->
-              <path class="cat-body" d="M60 44 C40 44 34 66 34 88 C34 112 44 122 60 122 C76 122 86 112 86 88 C86 66 80 44 60 44 Z"/>
-              <!-- ears -->
-              <path class="cat-body" d="M40 52 L34 24 L58 44 Z"/>
-              <path class="cat-body" d="M80 52 L86 24 L62 44 Z"/>
-              <path class="cat-ear-inner" d="M42 48 L39 32 L52 43 Z"/>
-              <path class="cat-ear-inner" d="M78 48 L81 32 L68 43 Z"/>
-              <!-- eyes -->
-              <ellipse class="cat-eye l" cx="51" cy="72" rx="5" ry="7"/>
-              <ellipse class="cat-eye r" cx="69" cy="72" rx="5" ry="7"/>
-              <!-- nose -->
-              <path class="cat-nose" d="M57 84 L63 84 L60 88 Z"/>
-              <!-- whiskers -->
-              <line class="cat-whisker" x1="40" y1="84" x2="20" y2="80"/>
-              <line class="cat-whisker" x1="40" y1="88" x2="21" y2="90"/>
-              <line class="cat-whisker" x1="80" y1="84" x2="100" y2="80"/>
-              <line class="cat-whisker" x1="80" y1="88" x2="99" y2="90"/>
-            </g>
-          </svg>
+        <div style="display: flex; flex-direction: column; min-height: 362px; font-family: 'JetBrains Mono', monospace; font-size: 13px;">
+          <div style="padding: 13px 18px 11px; border-bottom: 1px solid rgba(245,242,237,0.06);">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 12.5px;">
+              <span style="color: #7C5CFF;">▌</span>
+              <span style="color: #b7a7ff; font-weight: 600;">Andromeda</span>
+              <span style="color: rgba(245,242,237,0.4);">· openai-chatgpt · gpt-5.5 · agent</span>
+            </div>
+            <div style="margin-top: 5px; font-size: 12px; color: rgba(245,242,237,0.4);">
+              <span style="color: #8C7B6E;">⎇ main</span> · andromeda · <span style="color: #6fc48a;">ready</span> · ⏱ 0:17
+            </div>
+          </div>
+          <div style="flex: 1; padding: 16px 18px; line-height: 1.78;">
+            {{ terminal }}
+          </div>
+          <div style="padding: 10px 18px; border-top: 1px solid rgba(245,242,237,0.06); font-size: 11px; color: rgba(245,242,237,0.36);">↑↓ history · PgUp/PgDn scroll · / commands · @ files · shift+tab mode · ctrl+c×2 exit</div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="install">
-      <div class="wrap reveal">
-        <h2>Install</h2>
-        <p class="lead">One command on every platform. Prebuilt, checksum-verified binaries.</p>
-        <div class="install-grid">
-          <div class="icard">
-            <span class="rec">Recommended</span>
-            <h3>macOS — Homebrew</h3>
-            <p>Taps the formula, verifies the checksum, installs to your PATH.</p>
-            <pre>brew install datamaia/tap/andromeda</pre>
+  <!-- MODELS -->
+  <section id="models" style="max-width: 1180px; margin: 0 auto; padding: 56px 32px 40px;">
+    <div data-reveal style="text-align: center; margin-bottom: 40px;">
+      <p style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #7C5CFF; margin: 0 0 12px;">// models &amp; providers</p>
+      <h2 style="font-size: 40px; letter-spacing: -0.025em; font-weight: 600; margin: 0 auto; max-width: 640px; text-wrap: balance;">One agent. Every provider, every model.</h2>
+    </div>
+
+    <!-- frontier model bubble -->
+    <div data-reveal style="display: flex; flex-direction: column; align-items: center; gap: 18px; margin-bottom: 52px;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: rgba(245,242,237,0.5);">Run frontier &amp; open models, out of the box</span>
+      <div style="min-height: 72px; display: flex; align-items: center; justify-content: center;">
+        {{ frontierBubble }}
+      </div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(245,242,237,0.4); text-align: center; max-width: 640px; line-height: 1.7;">GPT 5.6 Sol · Fable 5 · Kimi K2.7 · GLM 5.2 · DeepSeek V4 · Meta Llama · Nvidia Nemotron</div>
+    </div>
+
+    <!-- provider groups -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+      <sc-for list="{{ providerGroups }}" as="g" hint-placeholder-count="3">
+        <div data-reveal style="padding: 24px; border: 1px solid rgba(245,242,237,0.09); border-radius: 16px; background: rgba(255,255,255,0.015);">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: #7C5CFF; box-shadow: 0 0 8px #7C5CFF;"></span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,242,237,0.62);">{{ g.label }}</span>
           </div>
-          <div class="icard">
-            <h3>Linux / macOS — script</h3>
-            <p>Detects your OS/arch and downloads the matching release binary.</p>
-            <pre>curl -fsSL https://andromedacli.com/install | bash</pre>
-          </div>
-          <div class="icard">
-            <h3>Windows — PowerShell</h3>
-            <p>SHA256-verified; installs andromeda.exe and adds it to your PATH.</p>
-            <pre>irm https://andromedacli.com/install.ps1 | iex</pre>
-          </div>
-          <div class="icard">
-            <h3>With Go</h3>
-            <p>Compile and install from source with the Go toolchain.</p>
-            <pre>go install github.com/datamaia/andromeda/cmd/andromeda@latest</pre>
+          <div style="display: flex; flex-wrap: wrap; gap: 9px;">
+            <sc-for list="{{ g.items }}" as="p" hint-placeholder-count="4">
+              <div style="display: flex; flex-direction: column; gap: 2px; padding: 9px 14px; border: 1px solid rgba(245,242,237,0.1); border-radius: 11px; background: rgba(0,0,0,0.25);" style-hover="border-color: rgba(124,92,255,0.4); background: rgba(124,92,255,0.06);">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #F5F2ED;">{{ p.name }}</span>
+                <sc-if value="{{ p.svc }}" hint-placeholder-val="">
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #b7a7ff;">{{ p.svc }}</span>
+                </sc-if>
+              </div>
+            </sc-for>
           </div>
         </div>
-      </div>
-    </section>
+      </sc-for>
+    </div>
+  </section>
 
-    <section id="features">
-      <div class="wrap reveal">
-        <h2>Why Andromeda</h2>
-        <p class="lead">A coding agent that respects your machine, your model choice, and your permissions.</p>
-        <div class="feat-grid">
-          <div class="fcard"><div class="ico">🔒</div><h3>Local-first &amp; private</h3><p>No cloud, no telemetry. Credentials live in your OS keychain.</p></div>
-          <div class="fcard"><div class="ico">🔌</div><h3>Vendor-agnostic</h3><p>Anthropic, OpenAI (API or ChatGPT), Gemini, xAI, Groq, Ollama, and more — switch with a flag.</p></div>
-          <div class="fcard"><div class="ico">🛡️</div><h3>Safe by default</h3><p>Every write, command, and network call is read-only until you grant it — or allow-list it.</p></div>
-          <div class="fcard"><div class="ico">⌨️</div><h3>CLI &amp; TUI</h3><p>Script one-shot runs, or drop into a full-screen terminal UI with slash commands and a plan/approve flow.</p></div>
-          <div class="fcard"><div class="ico">💾</div><h3>Persistent sessions</h3><p>Conversations are remembered across turns and resume with <span class="mono">--continue</span>.</p></div>
-          <div class="fcard"><div class="ico">📄</div><h3>AGENTS.md-aware</h3><p>Project guidance is folded into the agent's context on every run. Scaffold it with <span class="mono">/init</span>.</p></div>
+  <!-- FEATURES -->
+  <section id="features" style="max-width: 1180px; margin: 0 auto; padding: 56px 32px;">
+    <div data-reveal style="margin-bottom: 44px;">
+      <p style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #7C5CFF; margin: 0 0 12px;">// why andromeda</p>
+      <h2 style="font-size: 40px; letter-spacing: -0.025em; font-weight: 600; margin: 0; max-width: 620px; text-wrap: balance;">A coding agent built around your machine, your model, and your permissions.</h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+      <sc-for list="{{ features }}" as="f" hint-placeholder-count="6">
+        <div data-reveal style="padding: 26px 24px; border: 1px solid rgba(245,242,237,0.09); border-radius: 15px; background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005));" style-hover="border-color: rgba(124,92,255,0.35); background: linear-gradient(180deg, rgba(124,92,255,0.06), rgba(255,255,255,0.005));">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #7C5CFF;">{{ f.no }}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 6px; background: rgba(245,242,237,0.05); color: rgba(245,242,237,0.5);">{{ f.tag }}</span>
+          </div>
+          <h3 style="font-size: 19px; font-weight: 600; margin: 0 0 9px;">{{ f.title }}</h3>
+          <p style="font-size: 14.5px; line-height: 1.6; color: rgba(245,242,237,0.6); margin: 0;">{{ f.body }}</p>
         </div>
-      </div>
-    </section>
-  </main>
+      </sc-for>
+    </div>
+  </section>
 
-  <footer>
-    <div class="wrap foot-inner">
-      <div>Andromeda · named for the constellation, and for a cat · <a href="https://github.com/datamaia/andromeda/blob/main/LICENSE">Apache 2.0</a></div>
-      <div class="foot-links">
-        <a href="https://github.com/datamaia/andromeda">GitHub</a>
-        <a href="https://github.com/datamaia/andromeda/releases">Releases</a>
-        <a href="#install">Install</a>
+  <!-- INSTALL -->
+  <section id="install" style="max-width: 1180px; margin: 0 auto; padding: 56px 32px 40px;">
+    <div data-reveal style="margin-bottom: 44px;">
+      <p style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #7C5CFF; margin: 0 0 12px;">// install</p>
+      <h2 style="font-size: 40px; letter-spacing: -0.025em; font-weight: 600; margin: 0 0 10px;">One command on every platform.</h2>
+      <p style="font-size: 17px; color: rgba(245,242,237,0.6); margin: 0;">Prebuilt, checksum-verified binaries. No cloud account required.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px;">
+      <sc-for list="{{ installs }}" as="i" hint-placeholder-count="4">
+        <div data-reveal style="position: relative; padding: 24px; border: 1px solid rgba(245,242,237,0.1); border-radius: 15px; background: rgba(255,255,255,0.02);">
+          <sc-if value="{{ i.recommended }}" hint-placeholder-val="{{ false }}">
+            <span style="position: absolute; top: 20px; right: 20px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; background: rgba(124,92,255,0.16); color: #b7a7ff;">Recommended</span>
+          </sc-if>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(245,242,237,0.45); margin-bottom: 6px;">{{ i.kicker }}</div>
+          <h3 style="font-size: 18px; font-weight: 600; margin: 0 0 8px;">{{ i.title }}</h3>
+          <p style="font-size: 14px; line-height: 1.55; color: rgba(245,242,237,0.58); margin: 0 0 18px; max-width: 300px;">{{ i.desc }}</p>
+          <div style="display: flex; align-items: stretch; border: 1px solid rgba(245,242,237,0.1); border-radius: 10px; overflow: hidden; background: #0a0b0d;">
+            <code style="flex: 1; display: flex; align-items: center; gap: 9px; padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: #F5F2ED; overflow-x: auto; white-space: nowrap;"><span style="color: #7C5CFF;">$</span>{{ i.cmd }}</code>
+            <button data-copy="{{ i.cmd }}" data-idle="Copy" onClick="{{ onCopy }}" style="border: none; border-left: 1px solid rgba(245,242,237,0.1); background: transparent; color: rgba(245,242,237,0.55); font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 0 15px; cursor: pointer;" style-hover="background: rgba(124,92,255,0.14); color: #b7a7ff;">Copy</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="max-width: 1180px; margin: 0 auto; padding: 48px 32px 72px;">
+    <div data-reveal style="border-radius: 20px; border: 1px solid rgba(124,92,255,0.22); background: radial-gradient(600px 300px at 50% -40%, rgba(124,92,255,0.22), transparent 70%), rgba(255,255,255,0.02); padding: 60px 32px; text-align: center;">
+      <div style="display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 28px;">
+        <div style="width: 128px; height: 128px; border-radius: 20px; overflow: hidden; border: 1px solid rgba(124,92,255,0.35); box-shadow: 0 0 44px rgba(124,92,255,0.32); background: #0a0b0d;">
+          <img src="assets/andromeda-cat.png" alt="Andromeda, the cat" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        </div>
+        <span style="margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,242,237,0.42);">meet Andromeda · the cat</span>
+      </div>
+      <h2 style="font-size: 38px; letter-spacing: -0.025em; font-weight: 600; margin: 0 0 14px; text-wrap: balance;">Your terminal. Your model. Your rules.</h2>
+      <p style="font-size: 17px; color: rgba(245,242,237,0.65); margin: 0 auto 30px; max-width: 480px;">Install Andromeda in seconds and drop into a full-screen TUI with a plan-and-approve flow.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+        <a href="#install" style="display: inline-flex; align-items: center; gap: 9px; padding: 14px 26px; border-radius: 11px; background: #7C5CFF; color: #0e1013; font-weight: 600; font-size: 15px; box-shadow: 0 8px 30px rgba(124,92,255,0.35);" style-hover="background: #8d70ff;">Get started →</a>
+        <a href="https://github.com/datamaia/andromeda" style="display: inline-flex; align-items: center; gap: 9px; padding: 14px 26px; border-radius: 11px; border: 1px solid rgba(245,242,237,0.18); color: #F5F2ED; font-weight: 500; font-size: 15px;" style-hover="border-color: rgba(245,242,237,0.4);">Read the docs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="border-top: 1px solid rgba(245,242,237,0.08); padding: 32px;">
+    <div style="max-width: 1180px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;">
+      <div style="display: flex; flex-direction: column; gap: 5px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: rgba(245,242,237,0.42);">Andromeda · named for the constellation, and for my cat</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: rgba(245,242,237,0.34);">by Frank Gonzalez &amp; Karen Lenis &amp; Maia</span>
+      </div>
+      <div style="display: flex; gap: 24px; font-size: 13.5px;">
+        <a href="https://github.com/datamaia/andromeda" style="color: rgba(245,242,237,0.6);" style-hover="color: #F5F2ED;">GitHub</a>
+        <a href="https://github.com/datamaia/andromeda/releases" style="color: rgba(245,242,237,0.6);" style-hover="color: #F5F2ED;">Releases</a>
+        <a href="https://github.com/datamaia/andromeda/blob/main/LICENSE" style="color: rgba(245,242,237,0.6);" style-hover="color: #F5F2ED;">Apache 2.0</a>
       </div>
     </div>
   </footer>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {}, &quot;terminalDemo&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Hero&quot;}, &quot;typingSpeed&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 42, &quot;min&quot;: 12, &quot;max&quot;: 90, &quot;step&quot;: 2, &quot;unit&quot;: &quot;ms&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Hero&quot;}, &quot;stars&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;2.4k&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot;}}">
+class Component extends DCLogic {
+  state = { lines: [], partial: null, modelIdx: 0 };
+  skyRef = React.createRef();
+  frontier = ['Fable 5', 'GPT 5.6 Sol', 'Kimi K2.7', 'GLM 5.2', 'DeepSeek V4', 'Meta Llama', 'Nvidia Nemotron'];
 
-  <script>
-    // --- copy install one-liner ---
-    function copyOL(btn) {
-      navigator.clipboard.writeText(document.getElementById('ol').textContent).then(() => {
-        const prev = btn.textContent; btn.textContent = 'Copied!';
-        setTimeout(() => (btn.textContent = prev), 1400);
+  script = [
+    { typed: true, prefix: 'you ▸ ', pc: '#F5F2ED', text: 'add a dark-mode toggle to Settings', color: '#F5F2ED' },
+    { prefix: 'andromeda ▸ ', pc: '#b7a7ff', text: "On it — here's the plan before I touch anything:", color: 'rgba(245,242,237,0.85)' },
+    { spacer: true },
+    { prefix: '  • ', pc: '#7C5CFF', text: 'Add ThemeContext with a persisted preference', color: 'rgba(245,242,237,0.82)' },
+    { prefix: '  • ', pc: '#7C5CFF', text: 'Wire the toggle into SettingsPanel', color: 'rgba(245,242,237,0.82)' },
+    { prefix: '  • ', pc: '#7C5CFF', text: 'Extend tokens for the dark palette', color: 'rgba(245,242,237,0.82)' },
+    { spacer: true },
+    { prefix: '? ', pc: '#F5F2ED', text: 'Apply 3 edits across 4 files?', color: '#F5F2ED', bold: true, choices: true },
+    { prefix: '  ✔ ', pc: '#6fc48a', text: 'Edited  src/theme/ThemeContext.tsx', color: 'rgba(245,242,237,0.8)' },
+    { prefix: '  ✔ ', pc: '#6fc48a', text: 'Edited  src/components/SettingsPanel.tsx', color: 'rgba(245,242,237,0.8)' },
+    { spacer: true },
+    { prefix: '  ✔ ', pc: '#6fc48a', text: 'Done in 2.4s · 4 files changed', color: '#F5F2ED', bold: true },
+  ];
+
+  componentDidMount() {
+    this.demo = this.props.terminalDemo !== false;
+    this.speed = this.props.typingSpeed ?? 42;
+    this.i = 0; this.ci = 0;
+    this.run();
+    this.startSky();
+    this.modelTimer = setInterval(() => this.setState(s => ({ modelIdx: (s.modelIdx + 1) % this.frontier.length })), 1900);
+    this.setupReveal();
+  }
+  componentWillUnmount() { clearTimeout(this.t); cancelAnimationFrame(this.raf); clearInterval(this.modelTimer); window.removeEventListener('resize', this.onResize); if (this.io) this.io.disconnect(); }
+
+  setupReveal() {
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    const root = this.skyRef.current ? this.skyRef.current.parentNode : document;
+    const els = Array.from(root.querySelectorAll('[data-reveal]'));
+    els.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(28px)';
+      el.style.transition = 'opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1)';
+      el.style.willChange = 'opacity, transform';
+    });
+    this.io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        const sibs = Array.from(el.parentNode.children).filter(c => c.hasAttribute && c.hasAttribute('data-reveal'));
+        const idx = Math.max(0, sibs.indexOf(el));
+        el.style.transitionDelay = (idx * 80) + 'ms';
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+        this.io.unobserve(el);
       });
+    }, { threshold: 0.1, rootMargin: '0px 0px -7% 0px' });
+    els.forEach(el => this.io.observe(el));
+  }
+
+  // ---- starry sky + cat constellation ----
+  catNodes = [
+    [20,15],[52,52],[118,52],[150,12],[14,86],[156,90],[85,120],[176,120],[188,74], // shape
+    [62,74],[108,74] // eyes
+  ];
+  catEdges = [[0,1],[1,2],[2,3],[1,4],[2,5],[4,6],[5,6],[5,7],[7,8]];
+
+  onResize = () => {
+    const c = this.skyRef.current; if (!c) return;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.W = c.clientWidth; this.H = c.clientHeight;
+    c.width = this.W * this.dpr; c.height = this.H * this.dpr;
+    const ctx = c.getContext('2d'); ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+  };
+
+  startSky() {
+    const c = this.skyRef.current; if (!c) return;
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
+    const N = Math.round((this.W * this.H) / 9000);
+    this.stars = Array.from({ length: Math.max(70, N) }, () => ({
+      x: Math.random() * this.W, y: Math.random() * this.H,
+      r: Math.random() * 1.3 + 0.3, base: Math.random() * 0.5 + 0.25,
+      amp: Math.random() * 0.4, ph: Math.random() * Math.PI * 2,
+      sp: Math.random() * 1.5 + 0.4,
+    }));
+    this.shoot = null; this.nextShoot = 1500;
+    const ctx = c.getContext('2d');
+    let last = performance.now();
+    const loop = (now) => {
+      const dt = now - last; last = now; const t = now / 1000;
+      ctx.clearRect(0, 0, this.W, this.H);
+      // stars
+      for (const s of this.stars) {
+        const a = Math.min(1, s.base + s.amp * Math.sin(t * s.sp + s.ph));
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832);
+        ctx.fillStyle = 'rgba(245,242,237,' + a.toFixed(3) + ')'; ctx.fill();
+      }
+      // shooting star
+      this.nextShoot -= dt;
+      if (!this.shoot && this.nextShoot <= 0) {
+        this.shoot = { x: Math.random() * this.W * 0.5 + this.W * 0.4, y: Math.random() * this.H * 0.35, life: 0, len: 140 + Math.random() * 90, vx: -(3 + Math.random() * 2), vy: 1.6 + Math.random() };
+        this.nextShoot = 4200 + Math.random() * 5000;
+      }
+      if (this.shoot) {
+        const sh = this.shoot; sh.life += dt; sh.x += sh.vx * dt / 16; sh.y += sh.vy * dt / 16;
+        const p = Math.min(1, sh.life / 700); const alpha = Math.sin(p * Math.PI);
+        const tx = sh.x - sh.vx * (sh.len / 6), ty = sh.y - sh.vy * (sh.len / 6);
+        const g = ctx.createLinearGradient(sh.x, sh.y, tx, ty);
+        g.addColorStop(0, 'rgba(215,201,255,' + (alpha * 0.9).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(124,92,255,0)');
+        ctx.strokeStyle = g; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(sh.x, sh.y); ctx.lineTo(tx, ty); ctx.stroke();
+        if (sh.life > 750) this.shoot = null;
+      }
+      // cat constellation (upper-right sky)
+      const scale = Math.min(1.15, Math.max(0.72, this.W / 1300));
+      const ox = this.W - 250 * scale - 40, oy = 66;
+      const pt = (i) => [ox + this.catNodes[i][0] * scale, oy + this.catNodes[i][1] * scale];
+      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(124,92,255,0.32)';
+      ctx.beginPath();
+      for (const [a, b] of this.catEdges) { const p1 = pt(a), p2 = pt(b); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); }
+      ctx.stroke();
+      for (let i = 0; i < this.catNodes.length; i++) {
+        const [x, y] = pt(i); const eye = i >= 9;
+        const tw = 0.6 + 0.4 * Math.sin(t * 2 + i);
+        ctx.beginPath(); ctx.arc(x, y, eye ? 1.7 : 2.3, 0, 6.2832);
+        ctx.fillStyle = eye ? 'rgba(215,201,255,' + tw.toFixed(3) + ')' : 'rgba(183,167,255,' + tw.toFixed(3) + ')';
+        ctx.shadowBlur = eye ? 8 : 12; ctx.shadowColor = '#7C5CFF'; ctx.fill(); ctx.shadowBlur = 0;
+      }
+      ctx.font = "500 10px 'JetBrains Mono', monospace";
+      ctx.fillStyle = 'rgba(245,242,237,0.3)'; ctx.textAlign = 'center';
+      ctx.fillText('the cat', ox + 100 * scale, oy + 150 * scale);
+      this.raf = requestAnimationFrame(loop);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+
+  run = () => {
+    if (this.i >= this.script.length) {
+      if (!this.demo) return;
+      this.t = setTimeout(() => {
+        this.i = 0; this.ci = 0;
+        this.setState({ lines: [], partial: null }, this.run);
+      }, 3200);
+      return;
     }
-
-    // --- scroll reveal ---
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-    // --- starfield + Andromeda constellation ---
-    (function () {
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const canvas = document.getElementById('stars');
-      const ctx = canvas.getContext('2d');
-      let w, h, dpr, stars, shooting = null, raf, t = 0;
-
-      // Andromeda constellation — a gentle chain of stars (the "chained maiden"), placed in
-      // relative coordinates and drawn brighter, with faint connecting lines.
-      const CONSTEL = [
-        [0.14, 0.30], [0.26, 0.24], [0.38, 0.33], [0.50, 0.22], [0.62, 0.34], [0.74, 0.26], [0.85, 0.40]
-      ];
-
-      function resize() {
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        w = canvas.clientWidth; h = canvas.clientHeight;
-        canvas.width = w * dpr; canvas.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const count = Math.min(160, Math.floor(w * h / 6500));
-        stars = Array.from({ length: count }, () => ({
-          x: Math.random() * w, y: Math.random() * h,
-          r: Math.random() * 1.3 + 0.3,
-          a: Math.random() * 0.6 + 0.2,
-          tw: Math.random() * 0.03 + 0.006,
-          ph: Math.random() * Math.PI * 2,
-          drift: Math.random() * 0.06 + 0.01
-        }));
+    const line = this.script[this.i];
+    if (line.typed && this.demo) {
+      if (this.ci <= line.text.length) {
+        this.setState({ partial: { ...line, text: line.text.slice(0, this.ci), caret: true } });
+        this.ci++;
+        this.t = setTimeout(this.run, this.speed);
+      } else {
+        this.setState(s => ({ lines: [...s.lines, line], partial: null }));
+        this.i++; this.ci = 0;
+        this.t = setTimeout(this.run, 480);
       }
+    } else {
+      this.setState(s => ({ lines: [...s.lines, line], partial: null }));
+      this.i++;
+      this.t = setTimeout(this.run, this.demo ? (line.spacer ? 90 : 360) : 0);
+    }
+  };
 
-      function drawConstellation() {
-        ctx.save();
-        ctx.strokeStyle = 'rgba(155,132,255,0.22)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        CONSTEL.forEach((p, i) => {
-          const x = p[0] * w, y = p[1] * h * 0.9 + 10;
-          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-        });
-        ctx.stroke();
-        CONSTEL.forEach((p, i) => {
-          const x = p[0] * w, y = p[1] * h * 0.9 + 10;
-          const pulse = reduce ? 1 : (0.7 + 0.3 * Math.sin(t * 0.03 + i));
-          const g = ctx.createRadialGradient(x, y, 0, x, y, 7);
-          g.addColorStop(0, 'rgba(230,222,255,' + (0.9 * pulse) + ')');
-          g.addColorStop(1, 'rgba(124,92,255,0)');
-          ctx.fillStyle = g;
-          ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = 'rgba(255,255,255,' + pulse + ')';
-          ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
-        });
-        ctx.restore();
-      }
+  row(line, key) {
+    if (line.spacer) return React.createElement('div', { key, style: { height: '10px' } });
+    const kids = [];
+    if (line.prefix) kids.push(React.createElement('span', { key: 'p', style: { color: line.pc || 'inherit' } }, line.prefix));
+    kids.push(React.createElement('span', { key: 't', style: { color: line.color, fontWeight: line.bold ? 600 : 400 } }, line.text));
+    if (line.caret) kids.push(React.createElement('span', { key: 'c', style: { display: 'inline-block', width: '8px', height: '15px', background: '#7C5CFF', marginLeft: '3px', transform: 'translateY(2px)', animation: 'amBlink 1s step-end infinite' } }));
+    if (line.choices) {
+      kids.push(React.createElement('span', { key: 'y', style: { marginLeft: '12px', padding: '2px 10px', borderRadius: '6px', background: 'rgba(111,196,138,0.16)', color: '#8fdca6', fontSize: '12px' } }, '› Yes'));
+      kids.push(React.createElement('span', { key: 'a', style: { marginLeft: '8px', padding: '2px 10px', borderRadius: '6px', background: 'rgba(245,242,237,0.06)', color: 'rgba(245,242,237,0.5)', fontSize: '12px' } }, 'Allow-list'));
+      kids.push(React.createElement('span', { key: 'n', style: { marginLeft: '8px', padding: '2px 10px', borderRadius: '6px', background: 'rgba(245,242,237,0.06)', color: 'rgba(245,242,237,0.5)', fontSize: '12px' } }, 'No'));
+    }
+    return React.createElement('div', { key, style: { whiteSpace: 'pre' } }, kids);
+  }
 
-      function maybeShoot() {
-        if (reduce || shooting || Math.random() > 0.004) return;
-        shooting = { x: Math.random() * w * 0.7, y: Math.random() * h * 0.4, len: 0, life: 0 };
-      }
-
-      function drawShoot() {
-        if (!shooting) return;
-        const s = shooting; s.life++;
-        const dx = s.life * 7, dy = s.life * 3.2;
-        ctx.save();
-        const grad = ctx.createLinearGradient(s.x + dx, s.y + dy, s.x + dx - 60, s.y + dy - 27);
-        grad.addColorStop(0, 'rgba(255,255,255,0.9)');
-        grad.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.strokeStyle = grad; ctx.lineWidth = 2; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(s.x + dx, s.y + dy); ctx.lineTo(s.x + dx - 60, s.y + dy - 27); ctx.stroke();
-        ctx.restore();
-        if (s.life > 26) shooting = null;
-      }
-
-      function frame() {
-        ctx.clearRect(0, 0, w, h);
-        for (const s of stars) {
-          const a = reduce ? s.a : s.a + Math.sin(t * s.tw + s.ph) * 0.35;
-          ctx.fillStyle = 'rgba(255,255,255,' + Math.max(0.05, Math.min(1, a)) + ')';
-          ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
-          if (!reduce) { s.y -= s.drift; if (s.y < -2) { s.y = h + 2; s.x = Math.random() * w; } }
-        }
-        drawConstellation();
-        maybeShoot(); drawShoot();
-        t++;
-        raf = requestAnimationFrame(frame);
-      }
-
-      resize();
-      window.addEventListener('resize', resize);
-      if (reduce) { frame(); cancelAnimationFrame(raf); } // one static frame
-      else {
-        frame();
-        document.addEventListener('visibilitychange', () => {
-          if (document.hidden) cancelAnimationFrame(raf); else raf = requestAnimationFrame(frame);
-        });
-      }
-    })();
-  </script>
+  renderVals() {
+    const rows = this.state.lines.map((l, idx) => this.row(l, idx));
+    if (this.state.partial) rows.push(this.row(this.state.partial, 'partial'));
+    const terminal = React.createElement('div', null, rows);
+    return {
+      terminal,
+      skyRef: this.skyRef,
+      stars: this.props.stars ?? '2.4k',
+      frontierBubble: React.createElement('div', {
+        key: this.state.modelIdx,
+        style: {
+          display: 'inline-flex', alignItems: 'center', gap: '13px',
+          padding: '15px 30px', borderRadius: '999px',
+          border: '1px solid rgba(124,92,255,0.42)', background: 'rgba(124,92,255,0.1)',
+          boxShadow: '0 0 55px rgba(124,92,255,0.32)',
+          fontFamily: "'JetBrains Mono', monospace", fontSize: '23px', fontWeight: 600, color: '#F5F2ED',
+          animation: 'amPop 0.55s cubic-bezier(.2,.9,.3,1.2)',
+        },
+      }, [
+        React.createElement('span', { key: 'i', style: { color: '#b7a7ff', fontSize: '18px' } }, '✦'),
+        React.createElement('span', { key: 'n' }, this.frontier[this.state.modelIdx]),
+      ]),
+      providerGroups: [
+        { label: 'Cloud agent platforms', items: [
+          { name: 'AWS', svc: 'Bedrock AgentCore' },
+          { name: 'Azure', svc: 'AI Foundry Agent Service' },
+          { name: 'Google Cloud', svc: 'Gemini Enterprise Agent' },
+          { name: 'Databricks', svc: 'Mosaic AI Agents' },
+        ] },
+        { label: 'Model APIs & routers', items: [
+          { name: 'OpenAI', svc: '' }, { name: 'Anthropic', svc: '' }, { name: 'Gemini', svc: '' },
+          { name: 'xAI', svc: '' }, { name: 'Groq', svc: '' }, { name: 'Cerebras', svc: '' },
+          { name: 'OpenRouter', svc: '' },
+        ] },
+        { label: 'Local & self-hosted', items: [
+          { name: 'Ollama', svc: '' }, { name: 'vLLM', svc: '' },
+        ] },
+      ],
+      onCopy: (e) => {
+        const btn = e.currentTarget;
+        const text = btn.getAttribute('data-copy') || '';
+        try { navigator.clipboard && navigator.clipboard.writeText(text); } catch (err) {}
+        const idle = btn.getAttribute('data-idle') || 'Copy';
+        btn.textContent = 'Copied ✓';
+        clearTimeout(btn._ct);
+        btn._ct = setTimeout(() => { btn.textContent = idle; }, 1300);
+      },
+      features: [
+        { no: '01', tag: 'no telemetry', title: 'Local-first & private', body: 'No cloud, no telemetry. Credentials live in your OS keychain and never touch a server.' },
+        { no: '02', tag: '--model', title: 'Vendor-agnostic', body: 'Anthropic, OpenAI, Gemini, xAI, Groq, Ollama and more — switch providers with a single flag.' },
+        { no: '03', tag: 'read-only', title: 'Safe by default', body: 'Every write, command, and network call is read-only until you grant it — or allow-list it once.' },
+        { no: '04', tag: 'cli · tui', title: 'CLI & TUI', body: 'Script one-shot runs, or drop into a full-screen terminal UI with slash commands and plan/approve.' },
+        { no: '05', tag: '--continue', title: 'Persistent sessions', body: 'Conversations are remembered across turns and resume exactly where you left off.' },
+        { no: '06', tag: '/init', title: 'AGENTS.md-aware', body: "Project guidance is folded into the agent's context on every run. Scaffold it with /init." },
+      ],
+      installs: [
+        { recommended: true, kicker: 'macOS · Homebrew', title: 'brew install', desc: 'Taps the formula, verifies the checksum, and installs to your PATH.', cmd: ' brew install datamaia/tap/andromeda' },
+        { recommended: false, kicker: 'Linux / macOS · script', title: 'Shell installer', desc: 'Detects your OS/arch and downloads the matching release binary.', cmd: ' curl -fsSL https://andromedacli.com/install | bash' },
+        { recommended: false, kicker: 'Windows · PowerShell', title: 'PowerShell', desc: 'SHA256-verified; installs andromeda.exe and adds it to your PATH.', cmd: ' irm https://andromedacli.com/install.ps1 | iex' },
+        { recommended: false, kicker: 'Go toolchain', title: 'go install', desc: 'Compile and install from source with the Go toolchain.', cmd: ' go install github.com/datamaia/andromeda/cmd/andromeda@latest' },
+      ],
+    };
+  }
+}
+</script>
 </body>
 </html>

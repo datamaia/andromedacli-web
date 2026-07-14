@@ -11,9 +11,17 @@ duplicates them.
 
 | Path | Purpose |
 | --- | --- |
-| `index.html` | The landing page (self-contained; inline CSS/JS, theme-aware, responsive) |
+| `index.html` | The landing page — a design-tool export driven by the `dc-runtime` in `support.js` |
+| `support.js` | The `dc-runtime` that renders the `<x-dc>` template (loads React 18 from unpkg at runtime) |
+| `assets/andromeda-cat.png` | The Andromeda cat mascot |
 | `vercel.json` | Rewrites `/install`, `/install.sh`, `/install.ps1` → the CLI repo's raw scripts, plus headers |
 | `robots.txt` | Allow indexing |
+
+**Rendering note:** the landing is client-side rendered by `support.js`, which pulls React (and
+Babel standalone) from `unpkg.com` at runtime — so first paint depends on that CDN and the page
+is not server-rendered. To edit the design, re-export from the design tool and replace
+`index.html` + `support.js`; the production `<head>` (title, description, OG tags, favicon) is
+added on top of the export and should be preserved on re-export.
 
 ## The install one-liners
 
@@ -56,6 +64,5 @@ a deliberate, one-way commitment. Until that's done, do **not** add a `go-import
 
 ## Brand assets
 
-The 🐱 in the nav/hero is a placeholder for the real Andromeda cat mascot — drop the mascot
-asset in and swap the emoji when available. Brand palette: violet `#7C5CFF`, taupe `#8C7B6E`,
-off-white `#F5F2ED`.
+`assets/andromeda-cat.png` is the Andromeda cat mascot used in the hero. Brand palette: violet
+`#7C5CFF`, taupe `#8C7B6E`, off-white `#F5F2ED`, on a near-black `#0e1013` cosmic background.
