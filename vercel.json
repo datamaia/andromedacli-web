@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/install", "destination": "https://raw.githubusercontent.com/datamaia/andromeda/main/scripts/install.sh" },
+    { "source": "/install.sh", "destination": "https://raw.githubusercontent.com/datamaia/andromeda/main/scripts/install.sh" },
+    { "source": "/install.ps1", "destination": "https://raw.githubusercontent.com/datamaia/andromeda/main/scripts/install.ps1" }
+  ],
+  "headers": [
+    {
+      "source": "/(install|install.sh)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/x-shellscript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=300" }
+      ]
+    },
+    {
+      "source": "/install.ps1",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=300" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}
