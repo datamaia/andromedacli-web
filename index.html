@@ -459,7 +459,7 @@ class Component extends DCLogic {
         { no: '06', tag: '/init', title: 'AGENTS.md-aware', body: "Project guidance is folded into the agent's context on every run. Scaffold it with /init." },
       ],
       installs: [
-        { recommended: true, kicker: 'macOS · Homebrew', title: 'brew install', desc: 'Taps the formula, verifies the checksum, and installs to your PATH.', cmd: ' brew install datamaia/tap/andromeda' },
+        { recommended: true, kicker: 'macOS · Homebrew', title: 'brew install', desc: 'Taps the cask and links andromeda to your PATH. If the tap is untrusted, run: brew trust datamaia/tap', cmd: ' brew install datamaia/tap/andromeda' },
         { recommended: false, kicker: 'Linux / macOS · script', title: 'Shell installer', desc: 'Detects your OS/arch and downloads the matching release binary.', cmd: ' curl -fsSL https://andromedacli.com/install | bash' },
         { recommended: false, kicker: 'Windows · PowerShell', title: 'PowerShell', desc: 'SHA256-verified; installs andromeda.exe and adds it to your PATH.', cmd: ' irm https://andromedacli.com/install.ps1 | iex' },
         { recommended: false, kicker: 'Go toolchain', title: 'go install', desc: 'Compile and install from source with the Go toolchain.', cmd: ' go install github.com/datamaia/andromeda/cmd/andromeda@latest' },
