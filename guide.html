@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de inicio — Andromeda CLI</title>
+<meta name="description" content="Guía imprimible de Andromeda CLI: cómo instalar, configurar y ejecutar tu primer agente, con proveedores, permisos y casos de uso.">
+<meta name="theme-color" content="#e9e7e2">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://andromedacli.com/guide">
+<meta property="og:title" content="Andromeda CLI — Guía de inicio">
+<meta property="og:description" content="Cómo instalar, configurar y ejecutar tu primer agente con Andromeda.">
+<meta property="og:image" content="https://andromedacli.com/assets/andromeda-cat.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://andromedacli.com/guide">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="/assets/andromeda-cat.png">
+<script src="/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face { font-family: 'x'; src: local('x'); }
+body { margin: 0; background: #e9e7e2; }
+a { color: #5b4bd4; text-decoration: none; }
+a:hover { color: #3f32a8; text-decoration: underline; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</helmet>
+<x-import component-from-global-scope="doc-page" from="/doc-page.js" size="letter" orientation="portrait" margin="0.9in" hint-size="100%,100%" style="font-family:'IBM Plex Sans',sans-serif; color:#1d1c1a; font-size:15px; line-height:1.65;">
+
+  <h1 style="font-family:'Source Serif 4',serif; font-size:38px; line-height:1.15; margin:0 0 6px; font-weight:700; letter-spacing:-0.01em;">Andromeda CLI — Guía de inicio</h1>
+  <p style="margin:0 0 4px; font-size:16px; color:#55524c;">Cómo instalar, configurar y ejecutar tu primer agente con Andromeda.</p>
+  <div style="display:flex; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7a766e; margin:10px 0 0;">
+    <span>v0.1.14</span>
+    <span>github.com/datamaia/andromeda</span>
+    <span>Apache-2.0</span>
+  </div>
+  <hr style="border:none; border-top:2px solid #1d1c1a; margin:22px 0 26px;">
+
+  <h2 style="font-family:'Source Serif 4',serif; font-size:24px; margin:0 0 10px; font-weight:700;">1. ¿Qué es Andromeda?</h2>
+  <p style="margin:0 0 12px;">Andromeda es un arnés de ingeniería con IA de código abierto: una CLI y una TUI interactiva que ejecutan agentes de código sobre tu espacio de trabajo. Tres principios lo definen:</p>
+  <ul style="margin:0 0 12px; padding-left:22px; display:flex; flex-direction:column; gap:6px;">
+    <li><strong>Local-first y privado</strong> — sin nube propia ni telemetría. Las credenciales viven en el llavero del sistema operativo (Keychain, Secret Service o Windows Credential Manager) y nunca salen de tu máquina.</li>
+    <li><strong>Agnóstico del proveedor</strong> — una sola interfaz sobre Anthropic, OpenAI (API key o suscripción ChatGPT), Gemini, xAI, Groq, Cerebras, OpenRouter, Hugging Face y modelos locales (Ollama, vLLM). Cambias de proveedor con un flag.</li>
+    <li><strong>Seguro por defecto</strong> — toda acción con efectos (escribir, ejecutar comandos, red, mutaciones de git) es de solo lectura hasta que la apruebes.</li>
+  </ul>
+
+  <h3 style="font-size:16px; margin:18px 0 6px; font-weight:600;">Cómo funciona como harness de ingeniería</h3>
+  <p style="margin:0 0 10px;">Un "harness" es el arnés que rodea al modelo: Andromeda no <em>es</em> el modelo, sino el sistema que lo conecta con tu repositorio de forma controlada. En cada ejecución arma un bucle de trabajo sobre tu workspace:</p>
+  <ol style="margin:0 0 12px; padding-left:22px; display:flex; flex-direction:column; gap:6px;">
+    <li><strong>Contexto</strong> — reúne el objetivo, el contenido relevante del repo, tu <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">AGENTS.md</code> y la memoria del workspace, y lo entrega al modelo del proveedor que elijas.</li>
+    <li><strong>Herramientas</strong> — expone acciones (leer, escribir, ejecutar comandos, red, git) que el modelo puede invocar, pero cada una pasa por la <strong>capa de permisos</strong> antes de ejecutarse.</li>
+    <li><strong>Aprobación</strong> — toda acción con efectos se detiene para que la apruebes, salvo las pre-autorizadas en <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">[permission] allow</code>. Nada muta tu código sin tu visto bueno.</li>
+    <li><strong>Iteración</strong> — el modelo observa el resultado (salida de tests, errores, diffs) y repite el ciclo hasta cumplir el objetivo, todo dentro de una sesión persistente.</li>
+  </ol>
+  <p style="margin:0 0 12px;">La clave es que <strong>el modelo es intercambiable</strong>: el harness, los permisos y el contexto son siempre los mismos, elijas el proveedor que elijas. Por eso puedes mezclar modelos en una misma tarea (ver §5) sin cambiar tu forma de trabajar.</p>
+
+  <h2 style="font-family:'Source Serif 4',serif; font-size:24px; margin:26px 0 10px; font-weight:700;">2. Instalación</h2>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">macOS (recomendado)</h3>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">brew install datamaia/tap/andromeda</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Homebrew verifica el checksum y enlaza <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda</code> en tu PATH. Actualiza con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">brew upgrade andromeda</code>. Si Homebrew rechaza el tap por no ser de confianza, ejecuta una vez <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">brew trust datamaia/tap</code> y reintenta.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Linux / macOS (script)</h3>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">curl -fsSL https://andromedacli.com/install | bash</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Detecta tu SO y arquitectura, descarga el binario e instala en <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">/usr/local/bin</code> (o <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">~/.local/bin</code>). Personaliza con las variables <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">ANDROMEDA_VERSION</code> y <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">ANDROMEDA_INSTALL_DIR</code>.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Windows (PowerShell)</h3>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">irm https://andromedacli.com/install.ps1 | iex</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Descarga el archivo de la release, verifica su SHA256, instala <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda.exe</code> en <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">%LOCALAPPDATA%\Programs\andromeda</code> y lo añade a tu PATH.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Con Go (1.25+)</h3>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">go install github.com/datamaia/andromeda/cmd/andromeda@latest</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">También hay binarios precompilados y checksums en la <a href="https://github.com/datamaia/andromeda/releases">página de releases</a>.</p>
+
+  <p style="margin:0 0 12px;">Verifica la instalación:</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 14px; overflow-x:auto;">andromeda version
+andromeda doctor   # diagnostica tu entorno</pre>
+
+  <h2 style="font-family:'Source Serif 4',serif; font-size:24px; margin:26px 0 10px; font-weight:700; break-before:page;">3. Primeros pasos</h2>
+  <p style="margin:0 0 10px;">Lanza la TUI interactiva ejecutando <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda</code> sin argumentos:</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 10px; overflow-x:auto;">andromeda</pre>
+  <p style="margin:0 0 14px;">La primera ejecución te guía para elegir proveedor e iniciar sesión. La TUI incluye comandos slash, menciones de archivos con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">@</code>, un flujo de planificar/aprobar e historial desplazable con el ratón.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Autenticación</h3>
+  <p style="margin:0 0 8px;">Inicia sesión una sola vez; las credenciales quedan en el llavero del sistema:</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 14px; overflow-x:auto;">andromeda auth login openai-chatgpt   # OAuth por navegador (cuenta ChatGPT)
+andromeda auth add anthropic          # guarda una API key desde una variable de entorno
+andromeda provider check              # valida la conectividad</pre>
+
+  <h3 style="font-size:16px; margin:18px 0 6px; font-weight:600;">Proveedores disponibles</h3>
+  <p style="margin:0 0 10px;">Andromeda habla con un proveedor a la vez, seleccionado con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--provider</code> o por el default de <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda.toml</code>. Lista los soportados con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda provider list</code> y los modelos de cada uno con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda model list</code>. Cada uno tiene su propia forma de autenticarse:</p>
+  <table style="width:100%; border-collapse:collapse; font-size:13.5px; margin:0 0 12px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding:8px 10px 8px 0; border-bottom:2px solid #1d1c1a; font-weight:600; width:28%;">Proveedor</th>
+        <th style="text-align:left; padding:8px 10px 8px 0; border-bottom:2px solid #1d1c1a; font-weight:600; width:24%;">Autenticación</th>
+        <th style="text-align:left; padding:8px 0; border-bottom:2px solid #1d1c1a; font-weight:600;">Notas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12px;">openai-chatgpt</td><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf;">OAuth (navegador)</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Usa tu suscripción de ChatGPT — no una API key.</td></tr>
+      <tr><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12px;">openai</td><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf;">API key</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">API de plataforma de OpenAI, facturada por uso.</td></tr>
+      <tr><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12px;">anthropic</td><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf;">API key</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Requiere clave de la API de Anthropic (Claude Pro/Max no sirve).</td></tr>
+      <tr><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12px;">gemini · xai · groq<br>cerebras · openrouter<br>huggingface</td><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf;">API key</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Cada uno con la clave de su plataforma.</td></tr>
+      <tr><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12px;">ollama · vllm</td><td style="padding:7px 10px 7px 0; border-bottom:1px solid #dcd8cf;">Local (sin clave)</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Modelos que corren en tu máquina; privados y gratis.</td></tr>
+    </tbody>
+  </table>
+
+  <div style="border:1px solid oklch(0.72 0.14 40); background:oklch(0.96 0.03 60); padding:14px 16px; border-radius:6px; margin:0 0 12px; break-inside:avoid;">
+    <p style="margin:0 0 8px; font-size:14px;"><strong>Ojo con la diferencia clave — suscripción ≠ API key</strong></p>
+    <ul style="margin:0; padding-left:20px; font-size:14px; display:flex; flex-direction:column; gap:6px;">
+      <li><strong>Anthropic:</strong> una suscripción normal de Claude (Pro o Max en claude.ai) <em>no</em> incluye acceso a la API. El proveedor <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">anthropic</code> solo funciona con una API key generada en la consola de desarrolladores de Anthropic (con facturación/créditos de API aparte). Si solo tienes la suscripción de chat, este proveedor no se autenticará.</li>
+      <li><strong>OpenAI / ChatGPT:</strong> si lo que tienes es una suscripción de ChatGPT (no una API key), usa el proveedor <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">openai-chatgpt</code>, que inicia sesión por OAuth con tu cuenta. El proveedor <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">openai</code> es distinto: espera una API key de la plataforma de OpenAI, facturada por uso.</li>
+    </ul>
+  </div>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">andromeda auth login openai-chatgpt   # suscripción ChatGPT → OAuth
+andromeda auth add openai             # API key de la plataforma OpenAI
+andromeda auth add anthropic          # API key de Anthropic (no la suscripción)</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Tras autenticarte, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda provider check</code> confirma que la conexión funciona antes de lanzar un agente.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Tu primera tarea one-shot</h3>
+  <p style="margin:0 0 8px;">También puedes ejecutar un agente directamente desde la línea de comandos:</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 10px; overflow-x:auto;">andromeda run "add a health-check endpoint" --provider openai-chatgpt --allow-write</pre>
+  <div style="border:1px solid #c9c5bc; background:#f4f2ec; padding:14px 16px; border-radius:6px; margin:0 0 14px; break-inside:avoid;">
+    <p style="margin:0; font-size:14px;"><strong>Permisos por ejecución.</strong> Las capacidades se activan por run: <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-write</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-exec</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-network</code>. Sin estos flags, el agente es de solo lectura.</p>
+  </div>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Sesiones persistentes</h3>
+  <p style="margin:0 0 8px;">Las conversaciones se recuerdan entre turnos y se pueden retomar:</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 14px; overflow-x:auto;">andromeda --continue        # reabre la sesión más reciente
+andromeda --resume &lt;id&gt;     # retoma una sesión guardada
+andromeda sessions list     # lista las sesiones guardadas</pre>
+
+  <h2 style="font-family:'Source Serif 4',serif; font-size:24px; margin:26px 0 10px; font-weight:700;">4. Configuración del proyecto</h2>
+  <p style="margin:0 0 10px;">Ejecuta <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">/init</code> en la TUI para generar <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda.toml</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">AGENTS.md</code> y los directorios de capacidades <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">.agents/</code>. La configuración es TOML plano y se aplica en capas: global → workspace → proyecto → variables de entorno → flags.</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 10px; overflow-x:auto;">[provider]
+default = "openai-chatgpt"
+
+# Comandos que el agente puede ejecutar SIN pedir aprobación,
+# emparejados por prefijo de argv. Lo no listado sigue preguntando;
+# lo que esté en `deny` se rechaza siempre.
+[permission]
+allow = ["git status", "git diff", "go build ./...", "go test ./..."]
+deny  = ["git push --force", "rm -rf"]</pre>
+  <p style="margin:0 0 14px;">Las indicaciones de proyecto escritas en <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">AGENTS.md</code> se incorporan al contexto del agente en cada ejecución.</p>
+
+  <h2 style="font-family:'Source Serif 4',serif; font-size:24px; margin:26px 0 10px; font-weight:700; break-before:page;">5. Casos de uso: trabajar con agentes</h2>
+  <p style="margin:0 0 10px;">En Andromeda no hay "archivos de agente" que mantener: <strong>cada ejecución instancia un agente</strong> definido por cuatro cosas — el objetivo (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">run &lt;goal&gt;</code> o el prompt en la TUI), el proveedor/modelo (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--provider</code> o el default de <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda.toml</code>), los permisos (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-*</code>) y el contexto del proyecto (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">AGENTS.md</code> + memoria del workspace). Combinar estos cuatro ejes te da agentes distintos para tareas distintas.</p>
+
+  <h3 style="font-size:16px; margin:16px 0 6px; font-weight:600;">Caso 1 — Explorar o auditar código (solo lectura)</h3>
+  <p style="margin:0 0 8px; font-size:14px;">Sin flags de permiso el agente no puede tocar nada: ideal para entender un repo nuevo, revisar un módulo o preparar un plan sin riesgo.</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">andromeda run "explica la arquitectura de internal/ y sus dependencias"
+andromeda run "audita el manejo de errores en el paquete auth"</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Complemento útil: <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda ontology build</code> genera un mapa estructural del repo y <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda graph serve</code> lo abre como grafo interactivo en localhost.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Caso 2 — Implementar una feature (escritura + ejecución)</h3>
+  <p style="margin:0 0 8px; font-size:14px;">Añade capacidades solo cuando la tarea las necesita: <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-write</code> para editar archivos, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-exec</code> para que compile y corra tests, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-network</code> solo si debe descargar dependencias.</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">andromeda run "añade un endpoint health-check con tests" \
+  --allow-write --allow-exec</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Las acciones no cubiertas por el allowlist de <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">[permission]</code> siguen pidiendo aprobación interactiva una a una.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Caso 3 — Varios agentes para una misma tarea</h3>
+  <p style="margin:0 0 8px; font-size:14px;">Como el proveedor se elige por ejecución, puedes encadenar agentes especializados sobre el mismo workspace: uno barato/local para explorar, uno potente para implementar y un tercero de otro vendor para revisar con "ojos frescos".</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;"># 1. Explorar con un modelo local (gratis, privado, solo lectura)
+andromeda run "resume el módulo de pagos y propón un plan" --provider ollama
+
+# 2. Implementar con un modelo potente
+andromeda run "ejecuta el plan propuesto para el módulo de pagos" \
+  --provider anthropic --allow-write --allow-exec
+
+# 3. Revisar con un proveedor distinto, de nuevo en solo lectura
+andromeda run "revisa el diff actual y señala riesgos" --provider openai-chatgpt</pre>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Los tres pasos comparten contexto a través del propio repo, de <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">AGENTS.md</code> y de la memoria del workspace: usa <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda memory add "el plan acordado es X"</code> para dejar notas que cualquier agente posterior leerá.</p>
+
+  <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Caso 4 — Trabajo largo e iterativo (TUI + sesiones)</h3>
+  <p style="margin:0 0 8px; font-size:14px;">Para refactors o features de varios días, trabaja en la TUI: menciona archivos con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">@</code>, usa el flujo planificar/aprobar y retoma donde lo dejaste.</p>
+  <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 14px; overflow-x:auto;">andromeda              # sesión interactiva
+andromeda --continue   # retomar la última sesión al día siguiente
+andromeda sessions list && andromeda --resume &lt;id&gt;</pre>
+
+  <div style="border:1px solid #c9c5bc; background:#f4f2ec; padding:14px 16px; border-radius:6px; margin:0 0 14px; break-inside:avoid;">
+    <p style="margin:0 0 6px; font-size:14px;"><strong>Buenas prácticas para "crear" tus agentes</strong></p>
+    <ul style="margin:0; padding-left:20px; font-size:14px; display:flex; flex-direction:column; gap:4px;">
+      <li>Fija el proveedor habitual en <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">[provider] default</code> y reserva <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--provider</code> para los pasos especializados.</li>
+      <li>Pre-aprueba en <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">[permission] allow</code> solo comandos verificados (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">git status</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">go test ./...</code>) y bloquea los peligrosos en <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">deny</code>.</li>
+      <li>Mantén <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">AGENTS.md</code> corto y preciso: comandos de build/test exactos, convenciones y límites — se inyecta en cada agente, en cada run.</li>
+      <li>Concede el permiso mínimo por paso: explorar sin flags, implementar con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-write</code>, y red solo cuando haga falta.</li>
+    </ul>
+  </div>
+
+  <h2 style="font-family:'Source Serif 4',serif; font-size:24px; margin:26px 0 12px; font-weight:700; break-before:page;">6. Referencia de comandos</h2>
+  <table style="width:100%; border-collapse:collapse; font-size:14px; margin:0 0 14px;">
+    <thead>
+      <tr>
+        <th style="text-align:left; padding:8px 12px 8px 0; border-bottom:2px solid #1d1c1a; font-weight:600; width:42%;">Comando</th>
+        <th style="text-align:left; padding:8px 0; border-bottom:2px solid #1d1c1a; font-weight:600;">Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Lanza la TUI interactiva (por defecto)</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda run &lt;goal&gt;</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Ejecuta un agente para cumplir un objetivo en el workspace</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda --continue</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Reabre la sesión más reciente</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda --resume &lt;id&gt;</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Retoma una sesión guardada concreta</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda sessions list</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Lista las sesiones guardadas de la TUI</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda provider list</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Lista los proveedores de modelos soportados</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda model list</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Lista los modelos que expone el proveedor configurado</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda memory add &lt;text&gt;</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Añade un registro de memoria del workspace</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda ontology build</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Escribe un mapa estructural determinista del repo (<code style="font-family:'IBM Plex Mono',monospace; font-size:12px;">.andromeda/ontology/project.ttl</code>)</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda graph serve</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Construye el grafo del workspace y abre un visor interactivo en localhost</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda doctor</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Diagnostica tu entorno</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda version</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Imprime la versión</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="font-family:'Source Serif 4',serif; font-size:24px; margin:26px 0 10px; font-weight:700;">7. Solución de problemas y recursos</h2>
+  <ul style="margin:0 0 12px; padding-left:22px; display:flex; flex-direction:column; gap:6px;">
+    <li><code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda doctor</code> revisa tu entorno y señala problemas comunes.</li>
+    <li><code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda provider check</code> valida la conectividad con tu proveedor.</li>
+    <li>Repositorio y releases: <a href="https://github.com/datamaia/andromeda">github.com/datamaia/andromeda</a></li>
+    <li>Sitio web: <a href="https://andromedacli.com">andromedacli.com</a></li>
+    <li>Licencia: Apache 2.0. Contribuciones bienvenidas — consulta <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">CONTRIBUTING.md</code> en el repo.</li>
+  </ul>
+
+  <div slot="footer" style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8a867e; padding-top:8px;">
+    <span>Andromeda CLI — Guía de inicio</span>
+    <span>datamaia/andromeda · v0.1.14</span>
+  </div>
+</x-import>
+</x-dc>
+</body>
+</html>

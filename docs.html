@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs — Andromeda CLI</title>
+<meta name="description" content="Documentación de Andromeda CLI: instalación, proveedores y autenticación, el harness de ingeniería, trabajar con agentes, configuración y referencia de comandos.">
+<meta name="theme-color" content="#0b0c0f">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://andromedacli.com/docs">
+<meta property="og:title" content="Andromeda CLI — Documentación">
+<meta property="og:description" content="Instala, configura y ejecuta tu primer agente con Andromeda: proveedores, permisos, el harness y la referencia de comandos.">
+<meta property="og:image" content="https://andromedacli.com/assets/andromeda-cat.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://andromedacli.com/docs">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="/assets/andromeda-cat.png">
+<script src="/support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face { font-family: 'x'; src: local('x'); }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #0b0c0f; color: #e7e7ea; font-family: 'IBM Plex Sans', sans-serif; }
+::selection { background: rgba(139,124,246,0.35); }
+a { color: #a99cff; text-decoration: none; }
+a:hover { color: #c3b9ff; }
+.doc-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.doc-scroll::-webkit-scrollbar-thumb { background: #23252d; border-radius: 8px; border: 2px solid #0b0c0f; }
+.doc-scroll::-webkit-scrollbar-track { background: transparent; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="display:flex; min-height:100vh; background:#0b0c0f;">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="doc-scroll" style="width:270px; flex:none; border-right:1px solid #191b21; height:100vh; position:sticky; top:0; overflow-y:auto; padding:22px 18px 40px; background:#08090b;">
+    <div style="display:flex; align-items:center; gap:10px; padding:4px 8px 22px;">
+      <a href="/" style="display:flex; align-items:center; gap:10px; color:inherit;" title="Volver a andromedacli.com">
+        <div style="width:26px; height:26px; border-radius:7px; background:linear-gradient(140deg,#8b7cf6,#6d5cff); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#fff;">A</div>
+        <div style="font-weight:600; font-size:15px; letter-spacing:-0.01em;">Andromeda</div>
+      </a>
+      <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#6a6c76; border:1px solid #23252d; border-radius:5px; padding:2px 6px;">v0.1.14</div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px; background:#101116; border:1px solid #20222a; border-radius:8px; padding:7px 10px; margin:0 4px 22px; color:#6a6c76; font-size:13px;">
+      <span style="font-size:13px;">⌕</span><span>Buscar…</span>
+      <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; border:1px solid #2a2c35; border-radius:4px; padding:1px 5px;">⌘K</span>
+    </div>
+
+    <nav style="display:flex; flex-direction:column; gap:22px; font-size:13.5px;">
+      <div>
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; color:#5c5e68; padding:0 8px 8px;">Empezar</div>
+        <div style="display:flex; flex-direction:column;">
+          <a data-nav="overview" href="#overview" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Introducción</a>
+          <a data-nav="install" href="#install" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Instalación</a>
+          <a data-nav="quickstart" href="#quickstart" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Primeros pasos</a>
+          <a href="/guide" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Guía imprimible ↗</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; color:#5c5e68; padding:0 8px 8px;">Modelos y proveedores</div>
+        <div style="display:flex; flex-direction:column;">
+          <a data-nav="providers" href="#providers" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Proveedores</a>
+          <a data-nav="auth" href="#auth" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Autenticación</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; color:#5c5e68; padding:0 8px 8px;">Conceptos</div>
+        <div style="display:flex; flex-direction:column;">
+          <a data-nav="harness" href="#harness" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">El harness de ingeniería</a>
+          <a data-nav="agents" href="#agents" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Trabajar con agentes</a>
+          <a data-nav="config" href="#config" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Configuración</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; color:#5c5e68; padding:0 8px 8px;">Referencia</div>
+        <div style="display:flex; flex-direction:column;">
+          <a data-nav="commands" href="#commands" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Comandos</a>
+          <a data-nav="troubleshooting" href="#troubleshooting" style="color:#b7b8c0; padding:6px 8px; border-radius:6px; border-left:2px solid transparent;">Solución de problemas</a>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN + TOC -->
+  <div style="flex:1; display:flex; min-width:0;">
+
+    <!-- ARTICLE -->
+    <main style="flex:1; min-width:0; padding:40px 60px 120px; max-width:860px;">
+      <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:#6a6c76; margin-bottom:26px;">
+        <span>Docs</span><span style="color:#3a3c44;">/</span><span>CLI</span><span style="color:#3a3c44;">/</span><span style="color:#b7b8c0;">Guía de inicio</span>
+      </div>
+
+      <!-- OVERVIEW -->
+      <h1 id="overview" data-sec style="font-size:38px; line-height:1.1; margin:0 0 14px; font-weight:700; letter-spacing:-0.02em;">Guía de inicio de Andromeda</h1>
+      <p style="font-size:17px; line-height:1.6; color:#a6a7b0; margin:0 0 18px;">Tu compañero de terminal para enviar buen software. Andromeda es un arnés de ingeniería con IA <strong style="color:#e7e7ea; font-weight:600;">local-first y agnóstico del proveedor</strong>: una CLI y una TUI interactiva que ejecutan agentes de código sobre tu workspace.</p>
+      <div style="border-top:1px solid #191b21; margin:0 0 30px;"></div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:0 0 34px;">
+        <div style="border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">Local-first</div>
+          <div style="font-size:12.5px; color:#8b8d97; line-height:1.5;">Sin nube ni telemetría. Las credenciales viven en el llavero de tu SO.</div>
+        </div>
+        <div style="border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">Agnóstico</div>
+          <div style="font-size:12.5px; color:#8b8d97; line-height:1.5;">Un interfaz sobre 9+ proveedores y modelos locales. Cambias con un flag.</div>
+        </div>
+        <div style="border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;">
+          <div style="font-weight:600; font-size:14px; margin-bottom:4px;">Seguro por defecto</div>
+          <div style="font-size:12.5px; color:#8b8d97; line-height:1.5;">Toda acción con efectos es de solo lectura hasta que la apruebes.</div>
+        </div>
+      </div>
+
+      <!-- INSTALL -->
+      <h2 id="install" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Instalación</h2>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 16px;">Elige el método para tu sistema. Después verifica con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">andromeda doctor</code>.</p>
+
+      <div style="font-size:13px; color:#8b8d97; margin:0 0 6px; font-weight:500;">macOS (recomendado)</div>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 16px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">brew install datamaia/tap/andromeda</pre>
+      </div>
+
+      <div style="font-size:13px; color:#8b8d97; margin:0 0 6px; font-weight:500;">Linux / macOS (script)</div>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 16px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">curl -fsSL https://andromedacli.com/install | bash</pre>
+      </div>
+
+      <div style="font-size:13px; color:#8b8d97; margin:0 0 6px; font-weight:500;">Windows (PowerShell)</div>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 16px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">powershell</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">irm https://andromedacli.com/install.ps1 | iex</pre>
+      </div>
+
+      <div style="font-size:13px; color:#8b8d97; margin:0 0 6px; font-weight:500;">Con Go (1.25+)</div>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 20px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">go install github.com/datamaia/andromeda/cmd/andromeda@latest</pre>
+      </div>
+
+      <!-- QUICKSTART -->
+      <h2 id="quickstart" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Primeros pasos</h2>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 16px;">Lanza la TUI interactiva ejecutando <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">andromeda</code> sin argumentos. La primera ejecución te guía para elegir proveedor e iniciar sesión.</p>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 16px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">andromeda                                    # TUI interactiva
+andromeda run "añade un endpoint health-check" \
+  --provider openai-chatgpt --allow-write      # tarea one-shot</pre>
+      </div>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 20px;">Las capacidades son opt-in por ejecución: <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">--allow-write</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">--allow-exec</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">--allow-network</code>. Sin ellas, el agente es de solo lectura.</p>
+
+      <!-- PROVIDERS -->
+      <h2 id="providers" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Proveedores</h2>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 18px;">Andromeda habla con un proveedor a la vez, seleccionado con <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">--provider</code> o por el default de <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">andromeda.toml</code>. Cada uno se autentica de forma distinta.</p>
+
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 22px;">
+        <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+          <thead>
+            <tr style="background:#101116;">
+              <th style="text-align:left; padding:10px 16px; border-bottom:1px solid #1c1e26; font-weight:600; color:#c3c4cc;">Proveedor</th>
+              <th style="text-align:left; padding:10px 16px; border-bottom:1px solid #1c1e26; font-weight:600; color:#c3c4cc;">Autenticación</th>
+              <th style="text-align:left; padding:10px 16px; border-bottom:1px solid #1c1e26; font-weight:600; color:#c3c4cc;">Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">openai-chatgpt</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#c3c4cc;">OAuth (navegador)</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Usa tu suscripción de ChatGPT — no una API key.</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">openai</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#c3c4cc;">API key</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">API de plataforma de OpenAI, facturada por uso.</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">anthropic</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#c3c4cc;">API key</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Requiere clave de la API de Anthropic (Claude Pro/Max no sirve).</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">gemini</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#c3c4cc;">API key</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Google Gemini.</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">xai · groq · cerebras</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#c3c4cc;">API key</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Cada uno con la clave de su plataforma.</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">openrouter · huggingface</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#c3c4cc;">API key</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Agregadores con muchos modelos.</td></tr>
+            <tr><td style="padding:9px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">ollama · vllm</td><td style="padding:9px 16px; color:#c3c4cc;">Local (sin clave)</td><td style="padding:9px 16px; color:#9a9ba3;">Modelos en tu máquina; privados y gratis.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="border:1px solid #3a3268; background:linear-gradient(180deg,rgba(139,124,246,0.10),rgba(139,124,246,0.04)); border-radius:10px; padding:16px 18px; margin:0 0 22px;">
+        <div style="display:flex; align-items:center; gap:8px; font-weight:600; font-size:13px; color:#c3b9ff; margin-bottom:10px;"><span style="font-size:14px;">⚠</span> Importante — suscripción ≠ API key</div>
+        <ul style="margin:0; padding-left:20px; font-size:14px; line-height:1.65; color:#c3c4cc; display:flex; flex-direction:column; gap:8px;">
+          <li><strong style="color:#fff;">Anthropic:</strong> una suscripción normal de Claude (Pro o Max en claude.ai) <em>no</em> incluye acceso a la API. El proveedor <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #2a2c35; border-radius:5px; padding:1px 6px; color:#d5c9ff;">anthropic</code> solo funciona con una API key de la consola de desarrolladores de Anthropic (facturación/créditos aparte). Si solo tienes el chat, no se autenticará.</li>
+          <li><strong style="color:#fff;">OpenAI / ChatGPT:</strong> si tienes una suscripción de ChatGPT (no una API key), usa <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #2a2c35; border-radius:5px; padding:1px 6px; color:#d5c9ff;">openai-chatgpt</code>, que entra por OAuth con tu cuenta. El proveedor <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #2a2c35; border-radius:5px; padding:1px 6px; color:#d5c9ff;">openai</code> es otro: espera una API key de la plataforma, facturada por uso.</li>
+        </ul>
+      </div>
+
+      <h3 style="font-size:16px; margin:24px 0 10px; font-weight:600;">Listar lo disponible</h3>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 22px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">andromeda provider list     # proveedores soportados
+andromeda model list        # modelos del proveedor configurado</pre>
+      </div>
+
+      <!-- AUTH -->
+      <h2 id="auth" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Autenticación</h2>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 16px;">Inicia sesión una vez; las credenciales quedan en el llavero del SO (Keychain / Secret Service / Windows Credential Manager). Después valida la conexión antes de lanzar un agente.</p>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 22px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">andromeda auth login openai-chatgpt   # suscripción ChatGPT → OAuth
+andromeda auth add openai             # API key de la plataforma OpenAI
+andromeda auth add anthropic          # API key de Anthropic (no la suscripción)
+andromeda provider check              # valida la conectividad</pre>
+      </div>
+
+      <!-- HARNESS -->
+      <h2 id="harness" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">El harness de ingeniería</h2>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 16px;">Un "harness" es el arnés que rodea al modelo: Andromeda no <em>es</em> el modelo, sino el sistema que lo conecta con tu repositorio de forma controlada. En cada ejecución arma un bucle de trabajo sobre tu workspace.</p>
+      <div style="display:flex; flex-direction:column; gap:10px; margin:0 0 18px;">
+        <div style="display:flex; gap:14px; border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;"><div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#8b7cf6; font-weight:600; flex:none;">01</div><div style="font-size:14px; line-height:1.6; color:#c3c4cc;"><strong style="color:#fff;">Contexto</strong> — reúne el objetivo, el repo relevante, tu <code style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 5px; color:#d5c9ff;">AGENTS.md</code> y la memoria del workspace, y los entrega al modelo elegido.</div></div>
+        <div style="display:flex; gap:14px; border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;"><div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#8b7cf6; font-weight:600; flex:none;">02</div><div style="font-size:14px; line-height:1.6; color:#c3c4cc;"><strong style="color:#fff;">Herramientas</strong> — expone acciones (leer, escribir, ejecutar, red, git) que el modelo puede invocar, pero cada una pasa por la capa de permisos.</div></div>
+        <div style="display:flex; gap:14px; border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;"><div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#8b7cf6; font-weight:600; flex:none;">03</div><div style="font-size:14px; line-height:1.6; color:#c3c4cc;"><strong style="color:#fff;">Aprobación</strong> — toda acción con efectos se detiene para que la apruebes, salvo lo pre-autorizado en <code style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 5px; color:#d5c9ff;">[permission] allow</code>.</div></div>
+        <div style="display:flex; gap:14px; border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;"><div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#8b7cf6; font-weight:600; flex:none;">04</div><div style="font-size:14px; line-height:1.6; color:#c3c4cc;"><strong style="color:#fff;">Iteración</strong> — observa el resultado (tests, errores, diffs) y repite el ciclo hasta cumplir el objetivo, dentro de una sesión persistente.</div></div>
+      </div>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 20px;">La clave: <strong style="color:#fff;">el modelo es intercambiable</strong>. El harness, los permisos y el contexto son siempre los mismos, elijas el proveedor que elijas — por eso puedes mezclar modelos en una misma tarea sin cambiar tu forma de trabajar.</p>
+
+      <!-- AGENTS -->
+      <h2 id="agents" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Trabajar con agentes</h2>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 18px;">No hay "archivos de agente" que mantener: <strong style="color:#fff;">cada ejecución instancia un agente</strong> definido por cuatro ejes — objetivo, proveedor/modelo, permisos y contexto (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">AGENTS.md</code> + memoria). Combinarlos te da agentes distintos para tareas distintas.</p>
+
+      <h3 style="font-size:16px; margin:22px 0 8px; font-weight:600;">Caso 1 — Explorar o auditar (solo lectura)</h3>
+      <p style="font-size:14px; line-height:1.65; color:#9a9ba3; margin:0 0 10px;">Sin flags de permiso el agente no toca nada: ideal para entender un repo o preparar un plan sin riesgo.</p>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 18px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">andromeda run "explica la arquitectura de internal/ y sus dependencias"
+andromeda ontology build     # mapa estructural del repo
+andromeda graph serve        # grafo interactivo en localhost</pre>
+      </div>
+
+      <h3 style="font-size:16px; margin:22px 0 8px; font-weight:600;">Caso 2 — Implementar una feature</h3>
+      <p style="font-size:14px; line-height:1.65; color:#9a9ba3; margin:0 0 10px;">Añade capacidades solo cuando la tarea las necesita.</p>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 18px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">andromeda run "añade un endpoint health-check con tests" \
+  --allow-write --allow-exec</pre>
+      </div>
+
+      <h3 style="font-size:16px; margin:22px 0 8px; font-weight:600;">Caso 3 — Varios agentes para una misma tarea</h3>
+      <p style="font-size:14px; line-height:1.65; color:#9a9ba3; margin:0 0 10px;">Como el proveedor se elige por ejecución, encadena agentes especializados sobre el mismo workspace: uno local para explorar, uno potente para implementar, uno de otro vendor para revisar.</p>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 18px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;"># 1. Explorar con un modelo local (gratis, privado, solo lectura)
+andromeda run "resume el módulo de pagos y propón un plan" --provider ollama
+
+# 2. Implementar con un modelo potente
+andromeda run "ejecuta el plan del módulo de pagos" \
+  --provider anthropic --allow-write --allow-exec
+
+# 3. Revisar con otro proveedor, de nuevo en solo lectura
+andromeda run "revisa el diff actual y señala riesgos" --provider openai-chatgpt</pre>
+      </div>
+      <p style="font-size:14px; line-height:1.65; color:#9a9ba3; margin:0 0 18px;">Comparten contexto por el propio repo, <code style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 5px; color:#d5c9ff;">AGENTS.md</code> y la memoria: usa <code style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 5px; color:#d5c9ff;">andromeda memory add "…"</code> para dejar notas que cualquier agente posterior leerá.</p>
+
+      <h3 style="font-size:16px; margin:22px 0 8px; font-weight:600;">Caso 4 — Trabajo largo (TUI + sesiones)</h3>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 22px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">andromeda              # sesión interactiva
+andromeda --continue   # retomar la última sesión
+andromeda sessions list && andromeda --resume &lt;id&gt;</pre>
+      </div>
+
+      <!-- CONFIG -->
+      <h2 id="config" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Configuración</h2>
+      <p style="font-size:15px; line-height:1.7; color:#c3c4cc; margin:0 0 16px;">Ejecuta <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">/init</code> en la TUI para generar <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">andromeda.toml</code>, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">AGENTS.md</code> y los directorios <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">.agents/</code>. Es TOML plano en capas: global → workspace → proyecto → env → flags.</p>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 22px;">
+        <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">andromeda.toml</div>
+        <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">[provider]
+default = "openai-chatgpt"
+
+# Comandos que el agente ejecuta SIN pedir aprobación (por prefijo de argv).
+# Lo no listado sigue preguntando; lo de `deny` se rechaza siempre.
+[permission]
+allow = ["git status", "git diff", "go build ./...", "go test ./..."]
+deny  = ["git push --force", "rm -rf"]</pre>
+      </div>
+
+      <!-- COMMANDS -->
+      <h2 id="commands" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Referencia de comandos</h2>
+      <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 22px;">
+        <table style="width:100%; border-collapse:collapse; font-size:13.5px;">
+          <thead>
+            <tr style="background:#101116;">
+              <th style="text-align:left; padding:10px 16px; border-bottom:1px solid #1c1e26; font-weight:600; color:#c3c4cc; width:40%;">Comando</th>
+              <th style="text-align:left; padding:10px 16px; border-bottom:1px solid #1c1e26; font-weight:600; color:#c3c4cc;">Descripción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Lanza la TUI interactiva (por defecto)</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda run &lt;goal&gt;</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Ejecuta un agente para un objetivo en el workspace</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda --continue</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Reabre la sesión más reciente</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda --resume &lt;id&gt;</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Retoma una sesión guardada</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda sessions list</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Lista las sesiones guardadas</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda provider list</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Lista los proveedores soportados</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda model list</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Lista los modelos del proveedor configurado</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda memory add &lt;text&gt;</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Añade un registro de memoria del workspace</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda ontology build</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Mapa estructural del repo (.andromeda/ontology/project.ttl)</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda graph serve</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Grafo del workspace en un visor en localhost</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda doctor</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Diagnostica tu entorno</td></tr>
+            <tr><td style="padding:9px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda version</td><td style="padding:9px 16px; color:#9a9ba3;">Imprime la versión</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TROUBLESHOOTING -->
+      <h2 id="troubleshooting" data-sec style="font-size:24px; margin:44px 0 14px; font-weight:650; letter-spacing:-0.01em; scroll-margin-top:24px;">Solución de problemas</h2>
+      <ul style="margin:0 0 20px; padding-left:20px; font-size:15px; line-height:1.7; color:#c3c4cc; display:flex; flex-direction:column; gap:6px;">
+        <li><code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">andromeda doctor</code> revisa tu entorno y señala problemas comunes.</li>
+        <li><code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">andromeda provider check</code> valida la conectividad con tu proveedor.</li>
+        <li>Si <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">anthropic</code> falla al autenticar, confirma que tienes una API key (no solo la suscripción de Claude).</li>
+        <li>Homebrew rechaza el tap: ejecuta <code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#16181d; border:1px solid #23252d; border-radius:5px; padding:1px 6px; color:#d5c9ff;">brew trust datamaia/tap</code> una vez y reintenta.</li>
+      </ul>
+
+      <div style="display:flex; justify-content:space-between; gap:12px; margin:40px 0 0; padding-top:24px; border-top:1px solid #191b21;">
+        <a href="#install" style="flex:1; border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014;"><div style="font-size:11.5px; color:#6a6c76; margin-bottom:3px;">← Anterior</div><div style="font-size:14px; color:#c3c4cc; font-weight:500;">Instalación</div></a>
+        <a href="#commands" style="flex:1; border:1px solid #1c1e26; border-radius:10px; padding:14px 16px; background:#0f1014; text-align:right;"><div style="font-size:11.5px; color:#6a6c76; margin-bottom:3px;">Siguiente →</div><div style="font-size:14px; color:#c3c4cc; font-weight:500;">Referencia de comandos</div></a>
+      </div>
+
+      <div style="font-size:12px; color:#5c5e68; margin-top:28px;">Repositorio: <a href="https://github.com/datamaia/andromeda">github.com/datamaia/andromeda</a> · <a href="/guide">Guía imprimible</a> · Apache-2.0 · Actualizado 15 jul 2026</div>
+    </main>
+
+    <!-- RIGHT TOC -->
+    <aside class="doc-scroll" style="width:230px; flex:none; height:100vh; position:sticky; top:0; overflow-y:auto; padding:44px 24px 40px; border-left:1px solid #191b21;">
+      <div style="font-size:11px; font-weight:600; letter-spacing:0.09em; text-transform:uppercase; color:#5c5e68; margin-bottom:14px;">En esta página</div>
+      <div style="display:flex; flex-direction:column; gap:2px; font-size:12.5px;">
+        <a data-toc="install" href="#install" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Instalación</a>
+        <a data-toc="quickstart" href="#quickstart" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Primeros pasos</a>
+        <a data-toc="providers" href="#providers" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Proveedores</a>
+        <a data-toc="auth" href="#auth" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Autenticación</a>
+        <a data-toc="harness" href="#harness" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">El harness</a>
+        <a data-toc="agents" href="#agents" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Trabajar con agentes</a>
+        <a data-toc="config" href="#config" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Configuración</a>
+        <a data-toc="commands" href="#commands" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Comandos</a>
+        <a data-toc="troubleshooting" href="#troubleshooting" style="color:#8b8d97; padding:4px 0 4px 12px; border-left:2px solid #23252d;">Solución de problemas</a>
+      </div>
+    </aside>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const root = this.el || document;
+    const sections = Array.from(document.querySelectorAll('[data-sec]'));
+    const navLinks = Array.from(document.querySelectorAll('[data-nav]'));
+    const tocLinks = Array.from(document.querySelectorAll('[data-toc]'));
+
+    const setActive = (id) => {
+      navLinks.forEach(a => {
+        const on = a.getAttribute('data-nav') === id;
+        a.style.color = on ? '#ffffff' : '#b7b8c0';
+        a.style.borderLeftColor = on ? '#8b7cf6' : 'transparent';
+        a.style.background = on ? 'rgba(139,124,246,0.10)' : 'transparent';
+      });
+      tocLinks.forEach(a => {
+        const on = a.getAttribute('data-toc') === id;
+        a.style.color = on ? '#c3b9ff' : '#8b8d97';
+        a.style.borderLeftColor = on ? '#8b7cf6' : '#23252d';
+      });
+    };
+
+    const io = new IntersectionObserver((entries) => {
+      const visible = entries.filter(e => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible.length) setActive(visible[0].target.id);
+    }, { rootMargin: '-10% 0px -70% 0px', threshold: 0 });
+
+    sections.forEach(s => io.observe(s));
+    this._io = io;
+    setActive('overview');
+  }
+  componentWillUnmount() { if (this._io) this._io.disconnect(); }
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

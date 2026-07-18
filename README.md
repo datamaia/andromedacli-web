@@ -12,9 +12,12 @@ duplicates them.
 | Path | Purpose |
 | --- | --- |
 | `index.html` | The landing page — a design-tool export driven by the `dc-runtime` in `support.js` |
-| `support.js` | The `dc-runtime` that renders the `<x-dc>` template (loads React 18 from unpkg at runtime) |
+| `docs.html` | The **documentation** site (served at `/docs`) — sidebar + on-page TOC, same `dc-runtime` |
+| `guide.html` | The **printable getting-started guide** (served at `/guide`) — letter-format, via `doc-page.js` |
+| `doc-page.js` | The paged-document component that `guide.html` imports (letter layout, print/PDF-friendly) |
+| `support.js` | The `dc-runtime` that renders every `<x-dc>` page (loads React 18 from unpkg at runtime) |
 | `assets/andromeda-cat.png` | The Andromeda cat mascot |
-| `vercel.json` | Rewrites `/install`, `/install.sh`, `/install.ps1` → the CLI repo's raw scripts, plus headers |
+| `vercel.json` | Rewrites `/install*` → the CLI repo's raw scripts and `/docs`, `/guide`, `/guia` → the doc pages, plus headers |
 | `robots.txt` | Allow indexing |
 
 **Rendering note:** the landing is client-side rendered by `support.js`, which pulls React (and
@@ -22,6 +25,21 @@ Babel standalone) from `unpkg.com` at runtime — so first paint depends on that
 is not server-rendered. To edit the design, re-export from the design tool and replace
 `index.html` + `support.js`; the production `<head>` (title, description, OG tags, favicon) is
 added on top of the export and should be preserved on re-export.
+
+## Documentation
+
+The docs are served from the same domain by the same `dc-runtime`:
+
+- **`/docs`** (`docs.html`) — the full documentation: install, providers & auth, the engineering
+  harness, working with agents, configuration, and the command reference. Dark theme (matches the
+  landing), sidebar + on-page table of contents with scroll-spy.
+- **`/guide`** (`guide.html`, alias `/guia`) — a printable, letter-format getting-started guide
+  (light theme) built with `doc-page.js`; good for reading top-to-bottom or exporting to PDF.
+
+Both are static `dc-runtime` exports like `index.html`: to edit, re-export from the design tool and
+replace the file, preserving the production `<head>` (title/description/OG/favicon) and the absolute
+`/support.js` (and `/doc-page.js`) script paths. The landing's nav, hero CTA, and footer link to
+`/docs`.
 
 ## The install one-liners
 
@@ -45,13 +63,18 @@ script itself resolves the latest published release.
 
 ## Deploy (Vercel)
 
-1. Create a Vercel project from this repo (Framework preset: **Other** — it's static).
-2. Add the domain `andromedacli.com` in **Project → Settings → Domains** and point the
-   registrar's nameservers/records as Vercel instructs.
-3. Every push to `main` redeploys. No environment variables or secrets are required.
+The site is hosted on Vercel with `andromedacli.com` attached and SSL auto-provisioned. It is
+**not** Git-connected, so pushing to `main` here does **not** auto-deploy — production is published
+through the Vercel **REST API**. A read-only token 403s on file upload, so deploy needs a
+**Full Account / write-scoped** token, kept in a local, untracked `.env` (never printed or
+committed). To ship an update, re-run the REST deploy: upload the files to `/v2/files` by sha1,
+then `POST /v13/deployments` with `target: production`.
 
-Local preview: `npx vercel dev` (or just open `index.html` — the `/install*` rewrites only run
-on Vercel).
+Alternatively, connect this repo under **Project → Settings → Git** in the Vercel dashboard for
+push-to-deploy (needs the Vercel GitHub app OAuth on the account).
+
+Local preview: `npx vercel dev` (or just open `index.html` — the `/install*`, `/docs`, and
+`/guide` rewrites only run on Vercel; you can still open `docs.html` / `guide.html` directly).
 
 ## Optional: vanity `go install` path
 
