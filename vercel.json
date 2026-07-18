@@ -3,7 +3,10 @@
   "rewrites": [
     { "source": "/install", "destination": "https://raw.githubusercontent.com/datamaia/andromeda/main/scripts/install.sh" },
     { "source": "/install.sh", "destination": "https://raw.githubusercontent.com/datamaia/andromeda/main/scripts/install.sh" },
-    { "source": "/install.ps1", "destination": "https://raw.githubusercontent.com/datamaia/andromeda/main/scripts/install.ps1" }
+    { "source": "/install.ps1", "destination": "https://raw.githubusercontent.com/datamaia/andromeda/main/scripts/install.ps1" },
+    { "source": "/docs", "destination": "/docs.html" },
+    { "source": "/guide", "destination": "/guide.html" },
+    { "source": "/guia", "destination": "/guide.html" }
   ],
   "headers": [
     {
