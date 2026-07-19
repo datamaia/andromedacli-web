@@ -233,7 +233,7 @@
 class Component extends DCLogic {
   state = { lines: [], partial: null, modelIdx: 0 };
   skyRef = React.createRef();
-  frontier = ['Fable 5', 'GPT 5.6 Sol', 'Kimi K2.7', 'GLM 5.2', 'DeepSeek V4', 'Meta Llama', 'Nvidia Nemotron'];
+  frontier = ['Claude Fable 5', 'GPT-5.6 Sol', 'Gemini 3 Pro', 'Kimi K3', 'GLM-5.2', 'MiniMax-M3', 'DeepSeek V4 Pro', 'Qwen3.7 Max', 'Grok 4.5', 'Llama 4 Maverick', 'Nemotron 3 Ultra'];
 
   script = [
     { typed: true, prefix: 'you ▸ ', pc: '#F5F2ED', text: 'add a dark-mode toggle to Settings', color: '#F5F2ED' },
@@ -437,7 +437,13 @@ class Component extends DCLogic {
         { label: 'Model APIs & routers', items: [
           { name: 'OpenAI', svc: '' }, { name: 'Anthropic', svc: '' }, { name: 'Gemini', svc: '' },
           { name: 'xAI', svc: '' }, { name: 'Groq', svc: '' }, { name: 'Cerebras', svc: '' },
-          { name: 'OpenRouter', svc: '' },
+          { name: 'OpenRouter', svc: '' }, { name: 'Hugging Face', svc: '' },
+        ] },
+        { label: 'Open-weight & frontier labs', items: [
+          { name: 'Moonshot', svc: 'Kimi K3' }, { name: 'Zhipu', svc: 'GLM-5.2' },
+          { name: 'MiniMax', svc: 'M3' }, { name: 'DeepSeek', svc: 'V4 Pro' },
+          { name: 'Alibaba', svc: 'Qwen3.7 Max' }, { name: 'Mistral', svc: 'Large 3' },
+          { name: 'Fireworks', svc: '' }, { name: 'Together AI', svc: '' }, { name: 'DeepInfra', svc: '' },
         ] },
         { label: 'Local & self-hosted', items: [
           { name: 'Ollama', svc: '' }, { name: 'vLLM', svc: '' },
