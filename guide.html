@@ -34,7 +34,7 @@ a:hover { color: #3f32a8; text-decoration: underline; }
   <h1 style="font-family:'Source Serif 4',serif; font-size:38px; line-height:1.15; margin:0 0 6px; font-weight:700; letter-spacing:-0.01em;">Andromeda CLI — Guía de inicio</h1>
   <p style="margin:0 0 4px; font-size:16px; color:#55524c;">Cómo instalar, configurar y ejecutar tu primer agente con Andromeda.</p>
   <div style="display:flex; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#7a766e; margin:10px 0 0;">
-    <span>v0.1.14</span>
+    <span>v0.1.16</span>
     <span>github.com/datamaia/andromeda</span>
     <span>Apache-2.0</span>
   </div>
@@ -155,7 +155,7 @@ deny  = ["git push --force", "rm -rf"]</pre>
   <p style="margin:0 0 8px; font-size:14px;">Sin flags de permiso el agente no puede tocar nada: ideal para entender un repo nuevo, revisar un módulo o preparar un plan sin riesgo.</p>
   <pre style="background:#1d1c1a; color:#f0eee9; font-family:'IBM Plex Mono',monospace; font-size:13px; padding:14px 16px; border-radius:6px; margin:0 0 8px; overflow-x:auto;">andromeda run "explica la arquitectura de internal/ y sus dependencias"
 andromeda run "audita el manejo de errores en el paquete auth"</pre>
-  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Complemento útil: <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda ontology build</code> genera un mapa estructural del repo y <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda graph serve</code> lo abre como grafo interactivo en localhost.</p>
+  <p style="margin:0 0 14px; font-size:14px; color:#55524c;">Complemento útil: <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda ontology build</code> genera dos mapas del repo —estructura (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">project.ttl</code>) y grafo de código AST (<code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">code.ttl</code>: paquetes, tipos, funciones y sus llamadas/implements)— y <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">andromeda graph open</code> abre un visor 3D offline del workspace.</p>
 
   <h3 style="font-size:16px; margin:0 0 6px; font-weight:600;">Caso 2 — Implementar una feature (escritura + ejecución)</h3>
   <p style="margin:0 0 8px; font-size:14px;">Añade capacidades solo cuando la tarea las necesita: <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-write</code> para editar archivos, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-exec</code> para que compile y corra tests, <code style="font-family:'IBM Plex Mono',monospace; font-size:13px;">--allow-network</code> solo si debe descargar dependencias.</p>
@@ -209,8 +209,8 @@ andromeda sessions list && andromeda --resume &lt;id&gt;</pre>
       <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda provider list</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Lista los proveedores de modelos soportados</td></tr>
       <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda model list</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Lista los modelos que expone el proveedor configurado</td></tr>
       <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda memory add &lt;text&gt;</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Añade un registro de memoria del workspace</td></tr>
-      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda ontology build</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Escribe un mapa estructural determinista del repo (<code style="font-family:'IBM Plex Mono',monospace; font-size:12px;">.andromeda/ontology/project.ttl</code>)</td></tr>
-      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda graph serve</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Construye el grafo del workspace y abre un visor interactivo en localhost</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda ontology build</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Escribe mapas deterministas del repo: estructura (<code style="font-family:'IBM Plex Mono',monospace; font-size:12px;">.andromeda/ontology/project.ttl</code>) + grafo de código AST (<code style="font-family:'IBM Plex Mono',monospace; font-size:12px;">code.ttl</code>)</td></tr>
+      <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda graph open</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Construye el grafo y abre el visor 3D offline (<code style="font-family:'IBM Plex Mono',monospace; font-size:12px;">.andromeda/graph/graph-3d.html</code>, sin servidor)</td></tr>
       <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda doctor</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Diagnostica tu entorno</td></tr>
       <tr><td style="padding:7px 12px 7px 0; border-bottom:1px solid #dcd8cf; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">andromeda version</td><td style="padding:7px 0; border-bottom:1px solid #dcd8cf;">Imprime la versión</td></tr>
     </tbody>
@@ -227,7 +227,7 @@ andromeda sessions list && andromeda --resume &lt;id&gt;</pre>
 
   <div slot="footer" style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8a867e; padding-top:8px;">
     <span>Andromeda CLI — Guía de inicio</span>
-    <span>datamaia/andromeda · v0.1.14</span>
+    <span>datamaia/andromeda · v0.1.16</span>
   </div>
 </x-import>
 </x-dc>

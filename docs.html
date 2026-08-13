@@ -45,7 +45,7 @@ a:hover { color: #c3b9ff; }
         <div style="width:26px; height:26px; border-radius:7px; background:linear-gradient(140deg,#8b7cf6,#6d5cff); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#fff;">A</div>
         <div style="font-weight:600; font-size:15px; letter-spacing:-0.01em;">Andromeda</div>
       </a>
-      <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#6a6c76; border:1px solid #23252d; border-radius:5px; padding:2px 6px;">v0.1.14</div>
+      <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#6a6c76; border:1px solid #23252d; border-radius:5px; padding:2px 6px;">v0.1.16</div>
     </div>
 
     <div style="display:flex; align-items:center; gap:8px; background:#101116; border:1px solid #20222a; border-radius:8px; padding:7px 10px; margin:0 4px 22px; color:#6a6c76; font-size:13px;">
@@ -227,8 +227,8 @@ andromeda provider check              # valida la conectividad</pre>
       <div style="border:1px solid #1c1e26; border-radius:10px; overflow:hidden; margin:0 0 18px;">
         <div style="background:#101116; border-bottom:1px solid #1c1e26; padding:7px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#6a6c76;">bash</div>
         <pre style="margin:0; padding:14px 16px; background:#0d0e12; font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.6; color:#e0e1e6; overflow-x:auto;">andromeda run "explica la arquitectura de internal/ y sus dependencias"
-andromeda ontology build     # mapa estructural del repo
-andromeda graph serve        # grafo interactivo en localhost</pre>
+andromeda ontology build     # mapas del repo: estructura (project.ttl) + grafo de código AST (code.ttl)
+andromeda graph open         # visor 3D offline del workspace (se abre desde el filesystem, sin servidor)</pre>
       </div>
 
       <h3 style="font-size:16px; margin:22px 0 8px; font-weight:600;">Caso 2 — Implementar una feature</h3>
@@ -297,8 +297,9 @@ deny  = ["git push --force", "rm -rf"]</pre>
             <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda provider list</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Lista los proveedores soportados</td></tr>
             <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda model list</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Lista los modelos del proveedor configurado</td></tr>
             <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda memory add &lt;text&gt;</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Añade un registro de memoria del workspace</td></tr>
-            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda ontology build</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Mapa estructural del repo (.andromeda/ontology/project.ttl)</td></tr>
-            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda graph serve</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Grafo del workspace en un visor en localhost</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda ontology build</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Mapas deterministas del repo: estructura (project.ttl) + grafo de código AST (code.ttl — paquetes, tipos, funciones, llamadas, implements)</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda graph open</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Abre el visor 3D offline del workspace (.andromeda/graph/graph-3d.html, sin servidor)</td></tr>
+            <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda graph serve</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Construye el grafo y sirve el visor 3D en localhost (refresco en vivo)</td></tr>
             <tr><td style="padding:9px 16px; border-bottom:1px solid #16181d; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda doctor</td><td style="padding:9px 16px; border-bottom:1px solid #16181d; color:#9a9ba3;">Diagnostica tu entorno</td></tr>
             <tr><td style="padding:9px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#d5c9ff;">andromeda version</td><td style="padding:9px 16px; color:#9a9ba3;">Imprime la versión</td></tr>
           </tbody>
